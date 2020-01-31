@@ -1,6 +1,10 @@
 #include "BNanoClass.cpp"
 #include "BElectronsClass.cpp"
+#include "BElectronsClassMC.cpp"
 #include "TTree.h"
+#include <ROOT/RDataFrame.hxx>
+#include <ROOT/RVec.hxx>
+#include "TStopwatch.h"
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -32,8 +36,41 @@ struct pos{
 
 
 };
-void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type){
+ROOT::VecOps::RVec<bool> IsGood(unsigned int nB, 
+				float *pT1, float *pT2, float *pTk, 
+ 				ROOT::VecOps::RVec<unsigned int>& nTrg,float *cos2D, float *vtxP, 
+ 				float *disp, float *dispU, float *pT,float*eta) { 
 
+  ROOT::VecOps::RVec<bool> goodB(nB, false);
+  for (auto ij=0; ij<nB; ++ij){
+    if (pT1[ij] > 1. && pT2[ij] > 0.5 && pTk[ij] > 0.8 &&
+     	nTrg[ij] > 0 && cos2D[ij] > 0.99 && vtxP[ij] > 0.1 && disp[ij] > 2 && dispU[ij] != 0 && pT[ij] > 3. && std::abs(eta[ij]) < 2.4)
+      goodB[ij]  = true;
+  }
+
+  return goodB; 
+}
+
+ROOT::VecOps::RVec<int> Rankv2(ROOT::VecOps::RVec<float>& vtxP){
+
+  
+  auto sortIndices = Argsort(vtxP);
+  ROOT::VecOps::RVec<int> rank;
+  auto totN = vtxP.size();
+  rank.resize(totN);
+//  std::cout << "in Ranked v2" << totN << std::endl;
+
+  int nRank = 0;
+  for (auto ij=0; ij<totN; ++ij){
+//	std::cout << "in for RankV2 " << nRank << std::endl;
+    rank[sortIndices[ij]] = nRank;
+    ++nRank;
+  }
+  return rank; 
+}
+
+
+void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type){
 	int i;
 	double kin[3];
 
@@ -140,8 +177,8 @@ void superpos(std::string titlestring,TH1D * h1, TH1D* h2, const char* filename,
 	empty->GetXaxis()->SetTitle(titlestring.c_str());
 	empty->GetYaxis()->SetTitle("entries");
 	empty->Draw("");
-	h1->Draw("same");
-	h2->Draw("same");
+	h1->Draw("HISTsame");
+	h2->Draw("HISTsame");
 	l.SetTextSize(0.045);
 	l.SetTextAlign(13);
 	l.SetTextColor(kRed-6);

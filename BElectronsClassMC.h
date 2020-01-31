@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////
 
 //#ifndef BElectronsClass_h
-#define BElectronsClass_h
+#define BElectronsClassMC_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -14,7 +14,7 @@
 
 // Header file for the classes stored in the TTree if any.
 
-class BElectronsClass {
+class BElectronsClassMC {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -156,30 +156,30 @@ public :
    Bool_t          Electron_isLowPt[69];   //[nElectron]
    Bool_t          Electron_isPF[69];   //[nElectron]
    Bool_t          Electron_isPFoverlap[69];   //[nElectron]
- // UInt_t          nGenPart;
- // Float_t         GenPart_eta[136];   //[nGenPart]
- // Float_t         GenPart_mass[136];   //[nGenPart]
- // Float_t         GenPart_phi[136];   //[nGenPart]
- // Float_t         GenPart_pt[136];   //[nGenPart]
- // Float_t         GenPart_vx[136];   //[nGenPart]
- // Float_t         GenPart_vy[136];   //[nGenPart]
- // Float_t         GenPart_vz[136];   //[nGenPart]
- // Int_t           GenPart_genPartIdxMother[136];   //[nGenPart]
- // Int_t           GenPart_pdgId[136];   //[nGenPart]
- // Int_t           GenPart_status[136];   //[nGenPart]
- // Int_t           GenPart_statusFlags[136];   //[nGenPart]
- // Float_t         Generator_binvar;
- // Float_t         Generator_scalePDF;
- // Float_t         Generator_weight;
- // Float_t         Generator_x1;
- // Float_t         Generator_x2;
- // Float_t         Generator_xpdf1;
- // Float_t         Generator_xpdf2;
- // Int_t           Generator_id1;
- // Int_t           Generator_id2;
- // Float_t         genWeight;
- // UInt_t          nPSWeight;
- // Float_t         PSWeight[1];   //[nPSWeight]
+  UInt_t          nGenPart;
+  Float_t         GenPart_eta[136];   //[nGenPart]
+  Float_t         GenPart_mass[136];   //[nGenPart]
+  Float_t         GenPart_phi[136];   //[nGenPart]
+  Float_t         GenPart_pt[136];   //[nGenPart]
+  Float_t         GenPart_vx[136];   //[nGenPart]
+  Float_t         GenPart_vy[136];   //[nGenPart]
+  Float_t         GenPart_vz[136];   //[nGenPart]
+  Int_t           GenPart_genPartIdxMother[136];   //[nGenPart]
+  Int_t           GenPart_pdgId[136];   //[nGenPart]
+  Int_t           GenPart_status[136];   //[nGenPart]
+  Int_t           GenPart_statusFlags[136];   //[nGenPart]
+  Float_t         Generator_binvar;
+  Float_t         Generator_scalePDF;
+  Float_t         Generator_weight;
+  Float_t         Generator_x1;
+  Float_t         Generator_x2;
+  Float_t         Generator_xpdf1;
+  Float_t         Generator_xpdf2;
+  Int_t           Generator_id1;
+  Int_t           Generator_id2;
+  Float_t         genWeight;
+  UInt_t          nPSWeight;
+  Float_t         PSWeight[1];   //[nPSWeight]
    UInt_t          nMuon;
    Float_t         Muon_dxy[8];   //[nMuon]
    Float_t         Muon_dxyErr[8];   //[nMuon]
@@ -220,12 +220,12 @@ public :
    Int_t           TriggerMuon_charge[3];   //[nTriggerMuon]
    Int_t           TriggerMuon_pdgId[3];   //[nTriggerMuon]
    Int_t           TriggerMuon_trgMuonIndex[3];   //[nTriggerMuon]
- //  Float_t         Pileup_nTrueInt;
- //   Float_t         Pileup_pudensity;
- //   Float_t         Pileup_gpudensity;
- //   Int_t           Pileup_nPU;
- //  Int_t           Pileup_sumEOOT;
- //  Int_t           Pileup_sumLOOT;
+   Float_t         Pileup_nTrueInt;
+    Float_t         Pileup_pudensity;
+    Float_t         Pileup_gpudensity;
+    Int_t           Pileup_nPU;
+   Int_t           Pileup_sumEOOT;
+   Int_t           Pileup_sumLOOT;
     Float_t         fixedGridRhoFastjetAll;
     Float_t         fixedGridRhoFastjetCentral;
     Float_t         fixedGridRhoFastjetCentralCalo;
@@ -295,10 +295,10 @@ public :
    Float_t         SV_dlen[9];   //[nSV]
    Float_t         SV_dlenSig[9];   //[nSV]
    Float_t         SV_pAngle[9];   //[nSV]
- //  Int_t           Electron_genPartIdx[69];   //[nElectron]
- //  Int_t           Electron_genPartFlav[69];   //[nElectron]
- //  Int_t           Muon_genPartIdx[8];   //[nMuon]
- //  Int_t           Muon_genPartFlav[8];   //[nMuon]
+   Int_t           Electron_genPartIdx[69];   //[nElectron]
+   Int_t           Electron_genPartFlav[69];   //[nElectron]
+   Int_t           Muon_genPartIdx[8];   //[nMuon]
+   Int_t           Muon_genPartFlav[8];   //[nMuon]
    Float_t         SV_chi2[9];   //[nSV]
    Float_t         SV_eta[9];   //[nSV]
    Float_t         SV_mass[9];   //[nSV]
@@ -308,8 +308,8 @@ public :
    Float_t         SV_x[9];   //[nSV]
    Float_t         SV_y[9];   //[nSV]
    Float_t         SV_z[9];   //[nSV]
- //  Int_t           ProbeTracks_genPartIdx[246];   //[nProbeTracks]
- //  Int_t           ProbeTracks_genPartFlav[246];   //[nProbeTracks]
+   Int_t           ProbeTracks_genPartIdx[246];   //[nProbeTracks]
+   Int_t           ProbeTracks_genPartFlav[246];   //[nProbeTracks]
 
    // List of branches
    TBranch        *b_run;   //!
@@ -446,30 +446,30 @@ public :
    TBranch        *b_Electron_isLowPt;   //!
    TBranch        *b_Electron_isPF;   //!
    TBranch        *b_Electron_isPFoverlap;   //!
- // TBranch        *b_nGenPart;   //!
- // TBranch        *b_GenPart_eta;   //!
- // TBranch        *b_GenPart_mass;   //!
- // TBranch        *b_GenPart_phi;   //!
- // TBranch        *b_GenPart_pt;   //!
- // TBranch        *b_GenPart_vx;   //!
- // TBranch        *b_GenPart_vy;   //!
- // TBranch        *b_GenPart_vz;   //!
- // TBranch        *b_GenPart_genPartIdxMother;   //!
- // TBranch        *b_GenPart_pdgId;   //!
- // TBranch        *b_GenPart_status;   //!
- // TBranch        *b_GenPart_statusFlags;   //!
- // TBranch        *b_Generator_binvar;   //!
- // TBranch        *b_Generator_scalePDF;   //!
- // TBranch        *b_Generator_weight;   //!
- // TBranch        *b_Generator_x1;   //!
- // TBranch        *b_Generator_x2;   //!
- // TBranch        *b_Generator_xpdf1;   //!
- // TBranch        *b_Generator_xpdf2;   //!
- // TBranch        *b_Generator_id1;   //!
- // TBranch        *b_Generator_id2;   //!
- // TBranch        *b_genWeight;   //!
- // TBranch        *b_nPSWeight;   //!
- // TBranch        *b_PSWeight;   //!
+  TBranch        *b_nGenPart;   //!
+  TBranch        *b_GenPart_eta;   //!
+  TBranch        *b_GenPart_mass;   //!
+  TBranch        *b_GenPart_phi;   //!
+  TBranch        *b_GenPart_pt;   //!
+  TBranch        *b_GenPart_vx;   //!
+  TBranch        *b_GenPart_vy;   //!
+  TBranch        *b_GenPart_vz;   //!
+  TBranch        *b_GenPart_genPartIdxMother;   //!
+  TBranch        *b_GenPart_pdgId;   //!
+  TBranch        *b_GenPart_status;   //!
+  TBranch        *b_GenPart_statusFlags;   //!
+  TBranch        *b_Generator_binvar;   //!
+  TBranch        *b_Generator_scalePDF;   //!
+  TBranch        *b_Generator_weight;   //!
+  TBranch        *b_Generator_x1;   //!
+  TBranch        *b_Generator_x2;   //!
+  TBranch        *b_Generator_xpdf1;   //!
+  TBranch        *b_Generator_xpdf2;   //!
+  TBranch        *b_Generator_id1;   //!
+  TBranch        *b_Generator_id2;   //!
+  TBranch        *b_genWeight;   //!
+  TBranch        *b_nPSWeight;   //!
+  TBranch        *b_PSWeight;   //!
    TBranch        *b_nMuon;   //!
    TBranch        *b_Muon_dxy;   //!
    TBranch        *b_Muon_dxyErr;   //!
@@ -510,12 +510,12 @@ public :
    TBranch        *b_TriggerMuon_charge;   //!
    TBranch        *b_TriggerMuon_pdgId;   //!
    TBranch        *b_TriggerMuon_trgMuonIndex;   //!
- //  TBranch        *b_Pileup_nTrueInt;   //!
- // TBranch        *b_Pileup_pudensity;   //!
- // TBranch        *b_Pileup_gpudensity;   //!
- // TBranch        *b_Pileup_nPU;   //!
- // TBranch        *b_Pileup_sumEOOT;   //!
- // TBranch        *b_Pileup_sumLOOT;   //!
+   TBranch        *b_Pileup_nTrueInt;   //!
+  TBranch        *b_Pileup_pudensity;   //!
+  TBranch        *b_Pileup_gpudensity;   //!
+  TBranch        *b_Pileup_nPU;   //!
+  TBranch        *b_Pileup_sumEOOT;   //!
+  TBranch        *b_Pileup_sumLOOT;   //!
    TBranch        *b_fixedGridRhoFastjetAll;   //!
    TBranch        *b_fixedGridRhoFastjetCentral;   //!
    TBranch        *b_fixedGridRhoFastjetCentralCalo;   //!
@@ -585,10 +585,10 @@ public :
    TBranch        *b_SV_dlen;   //!
    TBranch        *b_SV_dlenSig;   //!
    TBranch        *b_SV_pAngle;   //!
- //  TBranch        *b_Electron_genPartIdx;   //!
- //  TBranch        *b_Electron_genPartFlav;   //!
-  // TBranch        *b_Muon_genPartIdx;   //!
- //  TBranch        *b_Muon_genPartFlav;   //!
+   TBranch        *b_Electron_genPartIdx;   //!
+   TBranch        *b_Electron_genPartFlav;   //!
+   TBranch        *b_Muon_genPartIdx;   //!
+   TBranch        *b_Muon_genPartFlav;   //!
    TBranch        *b_SV_chi2;   //!
    TBranch        *b_SV_eta;   //!
    TBranch        *b_SV_mass;   //!
@@ -598,8 +598,8 @@ public :
    TBranch        *b_SV_x;   //!
    TBranch        *b_SV_y;   //!
    TBranch        *b_SV_z;   //!
- //  TBranch        *b_ProbeTracks_genPartIdx;   //!
-//   TBranch        *b_ProbeTracks_genPartFlav;   //!
+   TBranch        *b_ProbeTracks_genPartIdx;   //!
+   TBranch        *b_ProbeTracks_genPartFlav;   //!
 
   // BElectronsClass(TTree *tree=0);
   // virtual ~BElectronsClass();
@@ -608,7 +608,7 @@ public :
   // virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
   // virtual void     Loop();
-  // virtual Bool_t   Notify();
+   //virtual Bool_t   Notify();
   // virtual void     Show(Long64_t entry = -1);
 };
 

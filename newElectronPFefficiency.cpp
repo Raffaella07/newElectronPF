@@ -11,7 +11,7 @@ int main(int argc, char **argv){
 	TTree* EvTree = (TTree*)file->Get("Events");
 	//TTree* EvTree = new TTree;
 	//EvTree = mergeTrees(1,"/eos/home-r/ratramon/BuToKJpsiTomumu/BuToKJpsiTomumu");
-	BElectronsClass evt;
+	BElectronsClassMC evt;
 	evt.Init(EvTree);
 	setStyle();
 
@@ -28,17 +28,17 @@ int main(int argc, char **argv){
 	for(i=0;i<evt.fChain->GetEntries();i++){
 		evt.fChain->GetEntry(i);
 			if (i%10000==0) std::cout << "On entry" << i << std::endl;
-			if(evt.Electron_isPF[evt.BToKEE_l1Idx[0]]){ 
+			if(evt.Electron_isPF[evt.BToKEE_l1Idx[0]]==1 && evt.Electron_genPartIdx[evt.BToKEE_l1Idx[0]] != -1){ 
 			pt_l1->Fill(evt.Electron_pt[evt.BToKEE_l1Idx[0]]);
 			mvaId_l1->Fill(evt.Electron_pfmvaId[evt.BToKEE_l1Idx[0]]);
 			pt1_mvaId->Fill(evt.Electron_pfmvaId[evt.BToKEE_l1Idx[0]],evt.Electron_pt[evt.BToKEE_l1Idx[0]]);
 			}
-			if(evt.Electron_isPF[evt.BToKEE_l2Idx[0]] ){ 
+			if(evt.Electron_isPF[evt.BToKEE_l2Idx[0]]==1 && evt.Electron_genPartIdx[evt.BToKEE_l2Idx[0]] != -1){ 
 			pt_l2->Fill(evt.Electron_pt[evt.BToKEE_l2Idx[0]]);
 			mvaId_l2->Fill(evt.Electron_pfmvaId[evt.BToKEE_l2Idx[0]]);
 			pt2_mvaId->Fill(evt.Electron_pfmvaId[evt.BToKEE_l2Idx[0]],evt.Electron_pt[evt.BToKEE_l2Idx[0]]);
 			}
-			if(evt.Electron_isPF[evt.BToKEE_l1Idx[0]] && evt.Electron_isPF[evt.BToKEE_l2Idx[0]]){
+			if(evt.Electron_isPF[evt.BToKEE_l1Idx[0]] && evt.Electron_isPF[evt.BToKEE_l2Idx[0]] && evt.Electron_genPartIdx[evt.BToKEE_l1Idx[0]] != -1 && evt.Electron_genPartIdx[evt.BToKEE_l2Idx[0]] != -1){
 			mva_id->Fill(evt.Electron_pfmvaId[evt.BToKEE_l2Idx[0]],evt.Electron_pfmvaId[evt.BToKEE_l1Idx[0]]);
 			mll->Fill(evt.BToKEE_mll_raw[0]);
 			}
