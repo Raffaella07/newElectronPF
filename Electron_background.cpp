@@ -9,17 +9,16 @@
 int main(){
 
 	//--grab and initialize trees
-	TChain* chain= new TChain("Events");
+	TFile* file = TFile::Open(argv[1]);
+	TTree* EvTree = (TTree*)file->Get("BGTree");
 	std::cout << "Loading input files from: " << std::endl;
-	std::cout << "/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/" << std::endl;
-	chain->Add("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_*.root");
 	
 	//TFile* file = TFile::Open(argv[1]);
 //	TTree* EvTree = (TTree*)chain->GetTree();
 	//TTree* EvTree = new TTree;
 	//EvTree = mergeTrees(1,"/eos/home-r/ratramon/BuToKJpsiTomumu/BuToKJpsiTomumu");
-	BElectronsClass evt;
-	evt.Init(chain);
+	BSignalElectronsClass evt;
+	evt.Init(EvtTree);
 	setStyle();
 
 	std::cout << "Successfully loaded: n entries" <<  evt.fChain->GetEntries() << std::endl;
@@ -34,7 +33,7 @@ int main(){
 	evt.fChain->GetEntry(i);
 	if(i%1000==0)std::cout << "Looping on entry" <<i <<  std::endl;
 	//std::cout << "nMuon  in event" << evt.nMuon <<  std::endl;
-	if (evt.nMuon == 4){
+/*	if (evt.nMuon == 4){
 	
 	//std::cout << "event with four muons" << std::endl;
 	TLorentzVector Muon[evt.nMuon];
@@ -84,15 +83,15 @@ int main(){
 		std::cout << "check pairs" << std::endl;
 		std::cout << "di muon 1 indices  " << di_muon1.first <<"___" << di_muon1.second <<  std::endl;
 		std::cout << "di muon 2 indices  " << di_muon2.first <<"___" << di_muon2.second <<  std::endl;
-		std::cout << "---------------------------------------------nElectrons " << evt.nElectron << std::endl;
-		for(j=0; j<evt.nElectron; j++){
-		if (evt.Electron_isPF[j]){
-		misEle_pt->Fill(evt.Electron_pt[j]);	
-		misEle_eta->Fill(evt.Electron_eta[j]);	
-		misEle_pfmvaId->Fill(evt.Electron_pfmvaId[j]);	
+		std::cout << "---------------------------------------------nElectrons " << evt.nElectron << std::endl;*/
+		for(j=0; j<evt.nElectrons; j++){
+		if (evt.Ele_isPF[j]){
+		misEle_pt->Fill(evt.Ele_pt[j]);	
+		misEle_eta->Fill(evt.Ele_eta[j]);	
+		misEle_pfmvaId->Fill(evt.Ele_pfmvaId[j]);	
 		}
 		}
-		}
+	//	}
 		
 	}
 	std::cout << "histo entries " << misEle_pt->GetEntries() << std::endl;

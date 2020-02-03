@@ -9,12 +9,16 @@
 int main(int argc, char **argv){
 
 	//--grab and initialize trees
-	TFile* outfile = TFile::Open(argv[1],"RECREATE");
+	int in_files = std::atoi(argv[1]);
+	TFile* outfile = TFile::Open(argv[2],"RECREATE");
 	TChain* chain= new TChain("Events");
 	std::cout << "Loading input files from: " << std::endl;
 	std::cout << "/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/" << std::endl;
-	chain->Add("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_99*.root");
-	
+	if (in_files == 0 ){
+	for(int file_idx=1;file_idx < 10; file_idx++){
+	chain->Add(("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_"+std::to_string(file_idx)+".root").c_str());
+	}
+	}else chain->Add(("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_"+std::to_string(in_files)+"*.root").c_str());
 	TTree SkimBGTree("BGTree", "A skimmed tree with useful variables for electrons in 4mu events");
 	//TFile* file = TFile::Open(argv[1]);
 //	TTree* EvTree = (TTree*)chain->GetTree();
@@ -124,7 +128,7 @@ int main(int argc, char **argv){
 
 		for(int f=0;f<evt.nElectron; f++){
 		if(nElectrons>200) break;
-		std::cout << "---------------------------------------------Electronpt " << evt.Electron_pt[f] << std::endl;
+//		std::cout << "---------------------------------------------Electronpt " << evt.Electron_pt[f] << std::endl;
 		Ele_pt[f] = evt.Electron_pt[f];
 		Ele_eta[f]=evt.Electron_eta[f];
 		Ele_phi[f]=evt.Electron_phi[f];
@@ -134,7 +138,7 @@ int main(int argc, char **argv){
 	//	Ele_phi = evt.Electron_phi;
 	//	Ele_pfmvaId = evt.Electron_pfmvaId;
 	//	Ele_isPF = evt.Electron_isPF;
-		std::cout << "---------------------------------------------Electronpttrans " << Ele_pt[f] << std::endl;
+//		std::cout << "---------------------------------------------Electronpttrans " << Ele_pt[f] << std::endl;
 		}
 	//
 		SkimBGTree.Fill();

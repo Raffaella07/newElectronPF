@@ -5,8 +5,12 @@
 int main(int argc,char **argv){
 
 	//--grab and initialize trees
-	TFile* file = TFile::Open(argv[1]);
-	TFile* outfile = TFile::Open(argv[2],"RECREATE");
+	int b = std::atoi(argv[1]);
+	bool signal;
+	if (b==1) signal =true;
+	else signal = false;
+	TFile* file = TFile::Open(argv[2]);
+	TFile* outfile = TFile::Open(argv[3],"RECREATE");
 	TTree* EvTree = (TTree*)file->Get("Events");
 	TTree SkimTree("Tree", "A skimmed tree with useful variables for the best BToKEE candidate");
 	//TTree* EvTree = new TTree;
@@ -61,18 +65,26 @@ int main(int argc,char **argv){
 		ROOT::VecOps::RVec<int> RankedB;
 		int n_matched;
 		n_matched =0;
+		j=-1;
+		double deltaR=9999;
 		for (int index=0;index<evt.nBToKEE;index++){
+			if(signal){
 			if (fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l1Idx[index]]])==11 && fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l2Idx[index]]])==11){
-				 j = index;
-				
-			//	std::cout << "pt ele matched: index 1 " << evt.Electron_genPartIdx[evt.BToKEE_l1Idx[index]] <<  " index 2 " <<  evt.Electron_genPartIdx[evt.BToKEE_l2Idx[index]] << std::endl;
-			//	n_matched++;
+			j = index;
+			}
+			}else{
+
+			if (fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l1Idx[index]]])!=11 && fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l2Idx[index]]])!=11){
+			j = index;	
+			}
+			}
+			
 
 				
-			}
-		}
+			
+		}/*
 		std::cout << "N matched" << n_matched << std::endl;
-	/*	for (int j=0;j<evt.nBToKEE;j++){
+		for (int j=0;j<evt.nBToKEE;j++){
 			nTrg_flat.push_back(1);
 			l_xy_sig[j]=evt.BToKEE_l_xy[j]/evt.BToKEE_l_xy_unc[j];
 
@@ -94,7 +106,7 @@ int main(int argc,char **argv){
 
 	//		std::cout << "debug last" <<  RankedB.size() <<  std::endl;
 			j = RankedB.at(0); // j index of the best candidate in the BToKEE collection
-		}else continue;*/
+		}else continue; */
 		 // If no suitable candidate is found, continue to next event
 		if(j!=-1 ) {//Define the variables to be saved in the skimmed tree
 		temp[0] = evt.BToKEE_mass[j];
@@ -125,7 +137,9 @@ int main(int argc,char **argv){
 		temp[25] = evt.Electron_isPF[evt.BToKEE_l1Idx[j]];
 		temp[26] = evt.Electron_isPF[evt.BToKEE_l2Idx[j]];
 		if(fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l1Idx[j]]])==11 ) temp[27] = 1;
-		else temp[27]=0;
+		else{ temp[27]=0;
+	//	std::cout << "mismatch" << std::endl;
+		}
 		if(fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l2Idx[j]]])==11 ) temp[28] = 1;
 		else temp[28]=0;
  		SkimTree.Fill();

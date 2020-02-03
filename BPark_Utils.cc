@@ -1,6 +1,8 @@
 #include "BNanoClass.cpp"
 #include "BElectronsClass.cpp"
+#include "BGElectronClass.cc"
 #include "BElectronsClassMC.cpp"
+#include "BSignalElectronClass.cpp"
 #include "TTree.h"
 #include <ROOT/RDataFrame.hxx>
 #include <ROOT/RVec.hxx>
@@ -134,7 +136,7 @@ void SavePlot (std::string titlestring, TH1D * histo, const char * filename, boo
 	histo->SetLineWidth(4);
 	histo->SetLineColor(kRed-6);
 	histo->GetXaxis()->SetTitle(titlestring.c_str());
-	histo->GetYaxis()->SetTitle(histo->GetTitle());
+	histo->GetYaxis()->SetTitle("entries");
 	std::cout << "axis title" << titlestring.c_str() << std::endl;
 	histo->Draw(/*"hist"*/);
 	if(lable)lables1D(canvas,histo);
@@ -194,7 +196,92 @@ void superpos(std::string titlestring,TH1D * h1, TH1D* h2, const char* filename,
 	delete canvas;
 }
 
+void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,double x_lable, std::string filename,std::string axis, bool order){
 
+	histo1->Scale(histo3->Integral()/histo1->Integral());
+	histo2->Scale(histo3->Integral()/histo2->Integral());
+	TCanvas* canv = new TCanvas("c1","c1",800,600);
+	TLatex l;
+	
+	histo1->SetLineWidth(4);
+	histo2->SetLineWidth(4);
+	histo3->SetLineWidth(4);
+	histo3->SetMarkerStyle(8);
+	histo3->SetMarkerSize(1.5);
+	histo1->SetLineColor(kRed-6);
+	histo2->SetLineColor(kBlue-3);
+	histo1->GetXaxis()->SetTitle(axis.c_str());
+	histo1->GetYaxis()->SetTitle("entries(normalized to DATA)");
+	if(!order){
+	histo1->GetXaxis()->SetTitle(axis.c_str());
+	histo1->GetYaxis()->SetTitle("entries(normalized to DATA)");
+	histo1->Draw("HIST");
+	histo2->Draw("sameHIST");
+	histo3->Draw("samePE1");
+	}else{
+	histo2->GetXaxis()->SetTitle(axis.c_str());
+	histo2->GetYaxis()->SetTitle("entries(normalized to DATA)");
+	histo2->Draw("HIST");
+	histo1->Draw("sameHIST");
+	histo3->Draw("samePE1");
+	}
+	l.SetTextSize(0.045);
+	l.SetTextAlign(13);
+	l.SetTextColor(kRed-6);
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.98*histo1->GetMaximum(),"Signal(MC) ");
+	l.SetTextColor(kBlue-3);
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.90*histo1->GetMaximum(),"Fakes(MC)");
+	l.SetTextColor(kBlack);
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.80*histo1->GetMaximum(),"Fakes(DATA)");
+	
+	canv->SaveAs((filename+".pdf").c_str());
+	std::string PNGPATH = "/eos/home-r/ratramon/www/";
+	canv->SaveAs((PNGPATH+filename+".png").c_str());
+	
+	delete canv;
+
+}
+
+void Fill_MChistos(BSignalElectronClass  *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta){
+
+	int i;	
+	for(i=0;i<tree->fChain->GetEntries();i++){
+		tree->fChain->GetEntry(i);
+		if (tree->B_l1_isPF==1){
+			 PFmvaId->Fill(tree->B_l1_mvaId);
+			 pt->Fill(tree->B_l1_pt);
+			 eta->Fill(tree->B_l1_eta);
+		}
+		if (tree->B_l2_isPF){
+			PFmvaId->Fill(tree->B_l2_mvaId);
+			pt->Fill(tree->B_l2_pt);
+			eta->Fill(tree->B_l2_eta);
+		}
+		}
+
+
+}
+
+void Fill_DATAhistos(BGElectronClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta){
+
+	int i;
+	
+	for(i=0;i<tree->fChain->GetEntries();i++){
+	//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
+		tree->fChain->GetEntry(i);
+		for(int j=0; j<tree->nElectrons;j++){
+//	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
+			if(tree->Ele_isPF[j]){
+		
+			 PFmvaId->Fill(tree->Ele_pfmvaId[j]);
+			 pt->Fill(tree->Ele_pt[j]);
+			 eta->Fill(tree->Ele_eta[j]);
+		}
+		}
+		}
+
+
+}
 void SavePlot2D (std::string titlestring, TH2D * histo,const char*  filename, bool log=false,bool lable=false){
 
 	TCanvas* canvas = new TCanvas(titlestring.c_str(),titlestring.c_str(),600,550);
@@ -204,8 +291,8 @@ void SavePlot2D (std::string titlestring, TH2D * histo,const char*  filename, bo
 //	plotter->Draw();
 	histo->Draw("sameCOLZ");
 	
-	histo->GetXaxis()->SetTitle("PFmvaID sublead e");
-	histo->GetYaxis()->SetTitle("PFmvaID lead e");
+	histo->GetXaxis()->SetTitle("Cut_{PFmvaId}^{e-sublead}");
+	histo->GetYaxis()->SetTitle("Cut_{PFmvaID}^{e-lead}");
 	if (lable)lables(canvas,histo);
 	canvas->SaveAs((std::string(filename)+".pdf").c_str());
 	canvas->SaveAs((PNGPATH+std::string(filename)+".png").c_str());
