@@ -34,7 +34,7 @@
 #include <vector>
 #include <math.h>
 #include <string>
-#include "TH1.h"
+#include "TF1.h"
 #include "TH2.h"
 #include "TMath.h"
 #include "TFile.h"
@@ -72,6 +72,9 @@ ROOT::VecOps::RVec<int> Rankv2(ROOT::VecOps::RVec<float>& vtxP);
 
 void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type);
 
+Double_t fline(Double_t *x, Double_t *par);
+
+double sigma_Bsig();
 
 TTree* mergeTrees(int n_files,std::string filename);
 

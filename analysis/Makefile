@@ -10,11 +10,14 @@ ROOTSYS ?= ERROR_RootSysIsNotDefined
 
 ROOTFLAG = `${ROOTSYS}/bin/root-config --cflags --libs`
 
-EXTRALIBS := -L$(ROOTSYS)/lib -lHtml -lMathCore -lGenVector -lMinuit -lTreePlayer -lRooFitCore -lRooFit #-L$(ROOFIT_LIBDIR)/ 
+EXTRALIBS := -L$(ROOTSYS)/lib -lHtml -lMathCore -lGenVector -lMinuit -lTreePlayer #-L$(ROOFIT_LIBDIR)/ 
 
 
 SglBkgAnalysis: Signal_Analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
 	$(CC) -Wall $(INCLUDES) -o SglBkgAnalysis Signal_Analysis.cpp BParkTools.o  BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
+
+BkgSides: Bkg_sidebands.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
+	$(CC) -Wall $(INCLUDES) -o BkgSides Bkg_sidebands.cpp BParkTools.o  BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG)
 
 ElectronEff: ElectronEff.cpp BParkTools.o BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
 	$(CC) -Wall $(INCLUDES) -o ElectronEff ElectronEff.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
@@ -25,11 +28,11 @@ ElectronEff_old: newElectronPFefficiency.cpp BParkTools.o BElectronsClass.o BEle
 ElectronBkg: Electron_background.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
 	$(CC) -Wall $(INCLUDES) -o ElectronBkg Electron_background.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
 
-SkimMC: skimmed_ntuples.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
-	$(CC) -Wall $(INCLUDES) -o SkimMC skimmed_ntuples.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
+SkimMC: skimmed_ntuple.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
+	$(CC) -Wall $(INCLUDES) -o SkimMC skimmed_ntuple.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
 
 SkimData_bkg: Skim_eleback.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
-	$(CC) -Wall $(INCLUDES) -o SkimData_bkg: Skim_eleback.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
+	$(CC) -Wall $(INCLUDES) -o SkimData_bkg Skim_eleback.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
 
 BkgAnalysis: Background_analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
 	$(CC) -Wall $(INCLUDES) -o BkgAnalysis: Background_analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)

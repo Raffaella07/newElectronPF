@@ -33,6 +33,15 @@ ROOT::VecOps::RVec<int> Rankv2(ROOT::VecOps::RVec<float>& vtxP){
 }
 
 
+Double_t fline(Double_t *x, Double_t *par)
+{
+   if (x[0] > 4.5 && x[0] < 6) {
+      TF1::RejectPoint();
+      return 0;
+   }
+   return par[0]+x[0]*par[1]+par[2]*std::pow(x[0],2)+par[3]*std::pow(x[0],3);
+}
+
 void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type){
 	int i;
 	double kin[3];
@@ -53,9 +62,27 @@ void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type){
 }
 double sigma_Bsig(){
 
-	TFile* file_sigMC = TFile::Open("..../skimmed_ntuples/skimmedNANO_BPark_mc_sgl_2020Jan2016.root");
+	TFile* file_sigMC = TFile::Open("../skimmed_ntuples/skimmedNANO_BPark_mc_sgl_2020Jan2016.root");
+	TTree* Tree = (TTree*)file_sigMC->Get("Tree");
+	TF1* fit = new TF1("gaussfit","gaus",5.2,5.4);
+	TH1D* B_mass = new TH1D("B_mass","B_mass",50,4.5,5.8);
+	BSignalElectronClass evt;
+	evt.Init(Tree);
+	int i;
 
+	for(i=0;i<evt.fChain->GetEntries();i++){
+		evt.fChain->GetEntry(i);
+		B_mass->Fill(evt.B_mass);
 
+	}	
+
+	fit->SetParameter(2,3);
+	fit->SetParameter(0,B_mass->GetMaximum());
+	fit->SetParLimits(0,B_mass->GetMaximum()-B_mass->GetMaximum()*.4,B_mass->GetMaximum()+B_mass->GetMaximum()*.5);
+	
+	B_mass->Fit("gaussfit","0R");
+	SavePlot("M_{B}GeV",B_mass,"newElectronPF/fit_mB",false,fit,false);	
+	return fit->GetParameter(2);
 }
 
 TTree* mergeTrees(int n_files,std::string filename){
@@ -95,6 +122,7 @@ void SavePlot (std::string titlestring, TH1D * histo, const char * filename, boo
 	TCanvas* canvas = new TCanvas("canva","canva",600,550);
 	TFile* histos = new TFile("gausslog.root","UPDATE","",0);
 	std::string PNGPATH = "/eos/home-r/ratramon/www/";
+	std::string PDFPATH = "/afs/cern.ch/user/r/ratramon/Bparking/CMSSW_10_2_15/src/macros/newElectronPF/";
 	//const char * temptitle = titlestring.c_str();
 
 	if (log) canvas->SetLogy();
@@ -105,8 +133,9 @@ void SavePlot (std::string titlestring, TH1D * histo, const char * filename, boo
 	histo->GetYaxis()->SetTitle("entries");
 	std::cout << "axis title" << titlestring.c_str() << std::endl;
 	histo->Draw(/*"hist"*/);
+	if(fit != NULL) fit->DrawF1(5.0,5.5,"same");
 	if(lable)lables1D(canvas,histo);
-	canvas->SaveAs((std::string(filename)+".pdf").c_str());
+	canvas->SaveAs((PDFPATH+std::string(filename)+".pdf").c_str());
 	canvas->SaveAs((PNGPATH+std::string(filename)+".png").c_str());
 	canvas->Clear();
 	histos->Close();

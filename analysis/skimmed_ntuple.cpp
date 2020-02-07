@@ -91,7 +91,7 @@ int main(int argc,char **argv){
 		for (int index=0;index<evt.nBToKEE;index++){
 			if(signal){
 			if (fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l1Idx[index]]])==11 && fabs(evt.GenPart_pdgId[evt.Electron_genPartIdx[evt.BToKEE_l2Idx[index]]])==11){
-			j = index;
+				if(evt.GenPart_pdgId[evt.GenPart_genPartIdxMother[evt.Electron_genPartIdx[evt.BToKEE_l1Idx[index]]]]==443 && evt.GenPart_pdgId[evt.GenPart_genPartIdxMother[evt.Electron_genPartIdx[evt.BToKEE_l2Idx[index]]]]==443)j = index;
 			}
 			}else{
 
