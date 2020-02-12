@@ -1,8 +1,8 @@
 #include "TTree.h"
 #include "../interface/BParkTools.h"
-#include <ROOT/RDataFrame.hxx>
-#include <ROOT/RVec.hxx>
-#include "TStopwatch.h"
+//#include <ROOT/RDataFrame.hxx>
+//#include <ROOT/RVec.hxx>
+//#include "TStopwatch.h"
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -34,11 +34,11 @@ int main(int argc, char **argv){
 	TChain* chain= new TChain("Events");
 	std::cout << "Loading input files from: " << std::endl;
 	std::cout << "/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/" << std::endl;
-	if (in_files == 0 ){
+	/*if (in_files == 0 ){
 	for(int file_idx=1;file_idx < 10; file_idx++){
 	chain->Add(("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_"+std::to_string(file_idx)+".root").c_str());
 	}
-	}else chain->Add(("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_"+std::to_string(in_files)+"*.root").c_str());
+	}else*/ chain->Add(("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018C_part1/200116_151112/0000/BParkNANO_data_2020Jan16_"+std::to_string(in_files)+".root").c_str());
 	TTree SkimBGTree("BGTree", "A skimmed tree with useful variables for electrons in 4mu events");
 	//TFile* file = TFile::Open(argv[1]);
 //	TTree* EvTree = (TTree*)chain->GetTree();
@@ -54,7 +54,7 @@ int main(int argc, char **argv){
 	int i,j, entry, nElectrons,nMuon;
 	double  event;
 	int Muon_idx[200];
-	float Ele_pt[200],Ele_eta[200],Ele_phi[200],Ele_pfmvaId[200];
+	float Ele_pt[200],Ele_eta[200],Ele_phi[200],Ele_pfmvaId[200],Muon_imass[2];
 	bool Ele_isPF[200];
 
 
@@ -71,6 +71,7 @@ int main(int argc, char **argv){
 	SkimBGTree.Branch("event", &event);
 	SkimBGTree.Branch("nMuon", &nMuon);
 	SkimBGTree.Branch("Muon_idx", Muon_idx,"Muon_idx[nMuon]/I");
+	SkimBGTree.Branch("Muon_imass", Muon_imass,"Muon_imass[2]/F");
 	SkimBGTree.Branch("nElectrons", &nElectrons);
 	SkimBGTree.Branch("Ele_pt", Ele_pt,"Ele_pt[nElectrons]/F");
 	SkimBGTree.Branch("Ele_eta", Ele_eta,"Ele_eta[nElectrons]/F");
@@ -154,6 +155,8 @@ int main(int argc, char **argv){
 		nMuon = evt.nMuon;
 		entry = i;
 		event = evt.event;
+		Muon_imass[0]=(Muon_sel[0]+Muon_sel[1]).Mag();
+		Muon_imass[1]=(Muon_sel[2]+Muon_sel[3]).Mag();
 		Muon_idx[0]=di_muon1.first;
 		Muon_idx[1]=di_muon1.second;
 		Muon_idx[2]=di_muon2.first;

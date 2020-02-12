@@ -10,7 +10,7 @@ ROOTSYS ?= ERROR_RootSysIsNotDefined
 
 ROOTFLAG = `${ROOTSYS}/bin/root-config --cflags --libs`
 
-EXTRALIBS := -L$(ROOTSYS)/lib -lHtml -lMathCore -lGenVector -lMinuit -lTreePlayer #-L$(ROOFIT_LIBDIR)/ 
+EXTRALIBS := -L$(ROOTSYS)/lib -lHtml -lMathCore -lGenVector -lMinuit -lTreePlayer -L$(ROOFIT_LIBDIR)/ 
 
 
 SglBkgAnalysis: Signal_Analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
@@ -32,11 +32,13 @@ SkimMC: skimmed_ntuple.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BG
 	$(CC) -Wall $(INCLUDES) -o SkimMC skimmed_ntuple.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
 
 SkimData_bkg: Skim_eleback.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
-	$(CC) -Wall $(INCLUDES) -o SkimData_bkg Skim_eleback.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
+	$(CC) -Wall $(INCLUDES) -o SkimData_bkg Skim_eleback.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG)
 
 BkgAnalysis: Background_analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
-	$(CC) -Wall $(INCLUDES) -o BkgAnalysis: Background_analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
+	$(CC) -Wall $(INCLUDES) -o BkgAnalysis Background_analysis.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG) $(EXTRALIBS)
 
+ROCStudies: ROCs.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
+	$(CC) -Wall $(INCLUDES) -o ROCStudies ROCs.cpp BParkTools.o BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o $(ROOTFLAG)
 
 
 BParkTools.o: ../../newElectronPF/src/BParkTools.cc BElectronsClass.o BElectronsClassMC.o BGElectronClass.o BSignalElectronClass.o BNanoClass.o
