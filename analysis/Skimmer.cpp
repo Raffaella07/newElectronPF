@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 	std::string in_letter= argv[2]; // Letter label for dataset analyzed A,B,C,D
 	int in_files = std::atoi(argv[4]);// file index
 	
-	bool isMC=true;
+	bool isMC=false;
 	
 	std::string INPUTDIR;
 	std::cout << "Loading input files from: " << std::endl;
@@ -66,8 +66,8 @@ int main(int argc, char **argv){
 
 	//adds file to the chain 
 	//file index for each in_dir goes from (in_dir)000 to (in_dir)999 i.e in_dir == 1 : file index in [1000;1999]
-	//if (in_dir ==0)file_exists = chain->Add((INPUTDIR+"/BParkNANO_data_2020Jan16_"+std::to_string(in_files)+".root").c_str());
-	if (in_dir ==0)file_exists = chain->Add("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/BuToKJpsi_Toee_Mufilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/crab_BuToKJpsi_Toee/200116_215618/0000/BParkNANO_mc_2020Jan16_2.root");
+	if (in_dir ==0)file_exists = chain->Add((INPUTDIR+"/BParkNANO_data_2020Jan16_"+std::to_string(in_files)+".root").c_str());
+//	if (in_dir ==0)file_exists = chain->Add("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/BuToKJpsi_Toee_Mufilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/crab_BuToKJpsi_Toee/200116_215618/0000/BParkNANO_mc_2020Jan16_2.root");
 
 	else if (in_dir ==1)file_exists = chain->Add((INPUTDIR+"/BParkNANO_data_2020Jan16_"+std::to_string(1000+in_files)+".root").c_str());
 	else if (in_dir ==2)file_exists = chain->Add((INPUTDIR+"/BParkNANO_data_2020Jan16_"+std::to_string(2000+in_files)+".root").c_str());
