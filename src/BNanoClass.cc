@@ -1,47 +1,4 @@
 #include "../interface/BNanoClass.h"
-
-
-
-/*BNanoClass::BNanoClass(TTree *tree) : fChain(0) 
-{
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("BParkNANO_data_10215.root");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("BParkNANO_data_10215.root");
-      }
-      f->GetObject("Events",tree);
-
-   }
-   Init(tree);
-}
-
-BNanoClass::~BNanoClass()
-{
-   if (!fChain) return;
-   delete fChain->GetCurrentFile();
-}
-
-Int_t BNanoClass::GetEntry(Long64_t entry)
-{
-// Read contents of entry.
-   if (!fChain) return 0;
-   return fChain->GetEntry(entry);
-}
-Long64_t BNanoClass::LoadTree(Long64_t entry)
-{
-// Set the environment to read one entry
-   if (!fChain) return -5;
-   Long64_t centry = fChain->LoadTree(entry);
-   if (centry < 0) return centry;
-   if (fChain->GetTreeNumber() != fCurrent) {
-      fCurrent = fChain->GetTreeNumber();
-      Notify();
-   }
-   return centry;
-}
-*/
 void BNanoClass::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
@@ -62,7 +19,8 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("luminosityBlock", &luminosityBlock, &b_luminosityBlock);
    fChain->SetBranchAddress("event", &event, &b_event);
    fChain->SetBranchAddress("nBToKEE", &nBToKEE, &b_nBToKEE);
-   fChain->SetBranchAddress("BToKEE_chi2", BToKEE_chi2, &b_BToKEE_chi2);
+   fChain->SetBranchAddress("BToKEE_b_iso03", BToKEE_b_iso03, &b_BToKEE_b_iso03);
+   fChain->SetBranchAddress("BToKEE_b_iso04", BToKEE_b_iso04, &b_BToKEE_b_iso04);
    fChain->SetBranchAddress("BToKEE_cos2D", BToKEE_cos2D, &b_BToKEE_cos2D);
    fChain->SetBranchAddress("BToKEE_eta", BToKEE_eta, &b_BToKEE_eta);
    fChain->SetBranchAddress("BToKEE_fit_cos2D", BToKEE_fit_cos2D, &b_BToKEE_fit_cos2D);
@@ -80,6 +38,12 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("BToKEE_fit_massErr", BToKEE_fit_massErr, &b_BToKEE_fit_massErr);
    fChain->SetBranchAddress("BToKEE_fit_phi", BToKEE_fit_phi, &b_BToKEE_fit_phi);
    fChain->SetBranchAddress("BToKEE_fit_pt", BToKEE_fit_pt, &b_BToKEE_fit_pt);
+   fChain->SetBranchAddress("BToKEE_k_iso03", BToKEE_k_iso03, &b_BToKEE_k_iso03);
+   fChain->SetBranchAddress("BToKEE_k_iso04", BToKEE_k_iso04, &b_BToKEE_k_iso04);
+   fChain->SetBranchAddress("BToKEE_l1_iso03", BToKEE_l1_iso03, &b_BToKEE_l1_iso03);
+   fChain->SetBranchAddress("BToKEE_l1_iso04", BToKEE_l1_iso04, &b_BToKEE_l1_iso04);
+   fChain->SetBranchAddress("BToKEE_l2_iso03", BToKEE_l2_iso03, &b_BToKEE_l2_iso03);
+   fChain->SetBranchAddress("BToKEE_l2_iso04", BToKEE_l2_iso04, &b_BToKEE_l2_iso04);
    fChain->SetBranchAddress("BToKEE_l_xy", BToKEE_l_xy, &b_BToKEE_l_xy);
    fChain->SetBranchAddress("BToKEE_l_xy_unc", BToKEE_l_xy_unc, &b_BToKEE_l_xy_unc);
    fChain->SetBranchAddress("BToKEE_mass", BToKEE_mass, &b_BToKEE_mass);
@@ -102,9 +66,13 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("BToKEE_kIdx", BToKEE_kIdx, &b_BToKEE_kIdx);
    fChain->SetBranchAddress("BToKEE_l1Idx", BToKEE_l1Idx, &b_BToKEE_l1Idx);
    fChain->SetBranchAddress("BToKEE_l2Idx", BToKEE_l2Idx, &b_BToKEE_l2Idx);
+   fChain->SetBranchAddress("BToKEE_n_k_used", BToKEE_n_k_used, &b_BToKEE_n_k_used);
+   fChain->SetBranchAddress("BToKEE_n_l1_used", BToKEE_n_l1_used, &b_BToKEE_n_l1_used);
+   fChain->SetBranchAddress("BToKEE_n_l2_used", BToKEE_n_l2_used, &b_BToKEE_n_l2_used);
    fChain->SetBranchAddress("BToKEE_pdgId", BToKEE_pdgId, &b_BToKEE_pdgId);
    fChain->SetBranchAddress("nBToKMuMu", &nBToKMuMu, &b_nBToKMuMu);
-   fChain->SetBranchAddress("BToKMuMu_chi2", BToKMuMu_chi2, &b_BToKMuMu_chi2);
+   fChain->SetBranchAddress("BToKMuMu_b_iso03", BToKMuMu_b_iso03, &b_BToKMuMu_b_iso03);
+   fChain->SetBranchAddress("BToKMuMu_b_iso04", BToKMuMu_b_iso04, &b_BToKMuMu_b_iso04);
    fChain->SetBranchAddress("BToKMuMu_cos2D", BToKMuMu_cos2D, &b_BToKMuMu_cos2D);
    fChain->SetBranchAddress("BToKMuMu_eta", BToKMuMu_eta, &b_BToKMuMu_eta);
    fChain->SetBranchAddress("BToKMuMu_fit_cos2D", BToKMuMu_fit_cos2D, &b_BToKMuMu_fit_cos2D);
@@ -122,6 +90,12 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("BToKMuMu_fit_massErr", BToKMuMu_fit_massErr, &b_BToKMuMu_fit_massErr);
    fChain->SetBranchAddress("BToKMuMu_fit_phi", BToKMuMu_fit_phi, &b_BToKMuMu_fit_phi);
    fChain->SetBranchAddress("BToKMuMu_fit_pt", BToKMuMu_fit_pt, &b_BToKMuMu_fit_pt);
+   fChain->SetBranchAddress("BToKMuMu_k_iso03", BToKMuMu_k_iso03, &b_BToKMuMu_k_iso03);
+   fChain->SetBranchAddress("BToKMuMu_k_iso04", BToKMuMu_k_iso04, &b_BToKMuMu_k_iso04);
+   fChain->SetBranchAddress("BToKMuMu_l1_iso03", BToKMuMu_l1_iso03, &b_BToKMuMu_l1_iso03);
+   fChain->SetBranchAddress("BToKMuMu_l1_iso04", BToKMuMu_l1_iso04, &b_BToKMuMu_l1_iso04);
+   fChain->SetBranchAddress("BToKMuMu_l2_iso03", BToKMuMu_l2_iso03, &b_BToKMuMu_l2_iso03);
+   fChain->SetBranchAddress("BToKMuMu_l2_iso04", BToKMuMu_l2_iso04, &b_BToKMuMu_l2_iso04);
    fChain->SetBranchAddress("BToKMuMu_l_xy", BToKMuMu_l_xy, &b_BToKMuMu_l_xy);
    fChain->SetBranchAddress("BToKMuMu_l_xy_unc", BToKMuMu_l_xy_unc, &b_BToKMuMu_l_xy_unc);
    fChain->SetBranchAddress("BToKMuMu_mass", BToKMuMu_mass, &b_BToKMuMu_mass);
@@ -144,157 +118,61 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("BToKMuMu_kIdx", BToKMuMu_kIdx, &b_BToKMuMu_kIdx);
    fChain->SetBranchAddress("BToKMuMu_l1Idx", BToKMuMu_l1Idx, &b_BToKMuMu_l1Idx);
    fChain->SetBranchAddress("BToKMuMu_l2Idx", BToKMuMu_l2Idx, &b_BToKMuMu_l2Idx);
+   fChain->SetBranchAddress("BToKMuMu_n_k_used", BToKMuMu_n_k_used, &b_BToKMuMu_n_k_used);
+   fChain->SetBranchAddress("BToKMuMu_n_l1_used", BToKMuMu_n_l1_used, &b_BToKMuMu_n_l1_used);
+   fChain->SetBranchAddress("BToKMuMu_n_l2_used", BToKMuMu_n_l2_used, &b_BToKMuMu_n_l2_used);
    fChain->SetBranchAddress("BToKMuMu_pdgId", BToKMuMu_pdgId, &b_BToKMuMu_pdgId);
-   fChain->SetBranchAddress("nBToKsEE", &nBToKsEE, &b_nBToKsEE);
-   fChain->SetBranchAddress("BToKsEE_barMass", BToKsEE_barMass, &b_BToKsEE_barMass);
-   fChain->SetBranchAddress("BToKsEE_barMkstar_fullfit", BToKsEE_barMkstar_fullfit, &b_BToKsEE_barMkstar_fullfit);
-   fChain->SetBranchAddress("BToKsEE_chi2", BToKsEE_chi2, &b_BToKsEE_chi2);
-   fChain->SetBranchAddress("BToKsEE_cos2D", BToKsEE_cos2D, &b_BToKsEE_cos2D);
-   fChain->SetBranchAddress("BToKsEE_eta", BToKsEE_eta, &b_BToKsEE_eta);
-   fChain->SetBranchAddress("BToKsEE_etakstar_fullfit", BToKsEE_etakstar_fullfit, &b_BToKsEE_etakstar_fullfit);
-   fChain->SetBranchAddress("BToKsEE_fit_cos2D", BToKsEE_fit_cos2D, &b_BToKsEE_fit_cos2D);
-   fChain->SetBranchAddress("BToKsEE_fit_eta", BToKsEE_fit_eta, &b_BToKsEE_fit_eta);
-   fChain->SetBranchAddress("BToKsEE_fit_mass", BToKsEE_fit_mass, &b_BToKsEE_fit_mass);
-   fChain->SetBranchAddress("BToKsEE_fit_massErr", BToKsEE_fit_massErr, &b_BToKsEE_fit_massErr);
-   fChain->SetBranchAddress("BToKsEE_fit_phi", BToKsEE_fit_phi, &b_BToKsEE_fit_phi);
-   fChain->SetBranchAddress("BToKsEE_fit_pt", BToKsEE_fit_pt, &b_BToKsEE_fit_pt);
-   fChain->SetBranchAddress("BToKsEE_fitted_barMass", BToKsEE_fitted_barMass, &b_BToKsEE_fitted_barMass);
-   fChain->SetBranchAddress("BToKsEE_l_xy", BToKsEE_l_xy, &b_BToKsEE_l_xy);
-   fChain->SetBranchAddress("BToKsEE_l_xy_unc", BToKsEE_l_xy_unc, &b_BToKsEE_l_xy_unc);
-   fChain->SetBranchAddress("BToKsEE_lep1eta_fullfit", BToKsEE_lep1eta_fullfit, &b_BToKsEE_lep1eta_fullfit);
-   fChain->SetBranchAddress("BToKsEE_lep1phi_fullfit", BToKsEE_lep1phi_fullfit, &b_BToKsEE_lep1phi_fullfit);
-   fChain->SetBranchAddress("BToKsEE_lep1pt_fullfit", BToKsEE_lep1pt_fullfit, &b_BToKsEE_lep1pt_fullfit);
-   fChain->SetBranchAddress("BToKsEE_lep2eta_fullfit", BToKsEE_lep2eta_fullfit, &b_BToKsEE_lep2eta_fullfit);
-   fChain->SetBranchAddress("BToKsEE_lep2phi_fullfit", BToKsEE_lep2phi_fullfit, &b_BToKsEE_lep2phi_fullfit);
-   fChain->SetBranchAddress("BToKsEE_lep2pt_fullfit", BToKsEE_lep2pt_fullfit, &b_BToKsEE_lep2pt_fullfit);
-   fChain->SetBranchAddress("BToKsEE_mass", BToKsEE_mass, &b_BToKsEE_mass);
-   fChain->SetBranchAddress("BToKsEE_max_dr", BToKsEE_max_dr, &b_BToKsEE_max_dr);
-   fChain->SetBranchAddress("BToKsEE_min_dr", BToKsEE_min_dr, &b_BToKsEE_min_dr);
-   fChain->SetBranchAddress("BToKsEE_mkstar_fullfit", BToKsEE_mkstar_fullfit, &b_BToKsEE_mkstar_fullfit);
-   fChain->SetBranchAddress("BToKsEE_mll_fullfit", BToKsEE_mll_fullfit, &b_BToKsEE_mll_fullfit);
-   fChain->SetBranchAddress("BToKsEE_mll_llfit", BToKsEE_mll_llfit, &b_BToKsEE_mll_llfit);
-   fChain->SetBranchAddress("BToKsEE_mll_raw", BToKsEE_mll_raw, &b_BToKsEE_mll_raw);
-   fChain->SetBranchAddress("BToKsEE_phi", BToKsEE_phi, &b_BToKsEE_phi);
-   fChain->SetBranchAddress("BToKsEE_phikstar_fullfit", BToKsEE_phikstar_fullfit, &b_BToKsEE_phikstar_fullfit);
-   fChain->SetBranchAddress("BToKsEE_pt", BToKsEE_pt, &b_BToKsEE_pt);
-   fChain->SetBranchAddress("BToKsEE_ptkstar_fullfit", BToKsEE_ptkstar_fullfit, &b_BToKsEE_ptkstar_fullfit);
-   fChain->SetBranchAddress("BToKsEE_svprob", BToKsEE_svprob, &b_BToKsEE_svprob);
-   fChain->SetBranchAddress("BToKsEE_trk1eta_fullfit", BToKsEE_trk1eta_fullfit, &b_BToKsEE_trk1eta_fullfit);
-   fChain->SetBranchAddress("BToKsEE_trk1phi_fullfit", BToKsEE_trk1phi_fullfit, &b_BToKsEE_trk1phi_fullfit);
-   fChain->SetBranchAddress("BToKsEE_trk1pt_fullfit", BToKsEE_trk1pt_fullfit, &b_BToKsEE_trk1pt_fullfit);
-   fChain->SetBranchAddress("BToKsEE_trk2eta_fullfit", BToKsEE_trk2eta_fullfit, &b_BToKsEE_trk2eta_fullfit);
-   fChain->SetBranchAddress("BToKsEE_trk2phi_fullfit", BToKsEE_trk2phi_fullfit, &b_BToKsEE_trk2phi_fullfit);
-   fChain->SetBranchAddress("BToKsEE_trk2pt_fullfit", BToKsEE_trk2pt_fullfit, &b_BToKsEE_trk2pt_fullfit);
-   fChain->SetBranchAddress("BToKsEE_charge", BToKsEE_charge, &b_BToKsEE_charge);
-   fChain->SetBranchAddress("BToKsEE_kstar_idx", BToKsEE_kstar_idx, &b_BToKsEE_kstar_idx);
-   fChain->SetBranchAddress("BToKsEE_l1_idx", BToKsEE_l1_idx, &b_BToKsEE_l1_idx);
-   fChain->SetBranchAddress("BToKsEE_l2_idx", BToKsEE_l2_idx, &b_BToKsEE_l2_idx);
-   fChain->SetBranchAddress("BToKsEE_pdgId", BToKsEE_pdgId, &b_BToKsEE_pdgId);
-   fChain->SetBranchAddress("BToKsEE_trk1_idx", BToKsEE_trk1_idx, &b_BToKsEE_trk1_idx);
-   fChain->SetBranchAddress("BToKsEE_trk2_idx", BToKsEE_trk2_idx, &b_BToKsEE_trk2_idx);
-   fChain->SetBranchAddress("nBToKsMuMu", &nBToKsMuMu, &b_nBToKsMuMu);
-   fChain->SetBranchAddress("BToKsMuMu_barMass", BToKsMuMu_barMass, &b_BToKsMuMu_barMass);
-   fChain->SetBranchAddress("BToKsMuMu_barMkstar_fullfit", BToKsMuMu_barMkstar_fullfit, &b_BToKsMuMu_barMkstar_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_chi2", BToKsMuMu_chi2, &b_BToKsMuMu_chi2);
-   fChain->SetBranchAddress("BToKsMuMu_cos2D", BToKsMuMu_cos2D, &b_BToKsMuMu_cos2D);
-   fChain->SetBranchAddress("BToKsMuMu_eta", BToKsMuMu_eta, &b_BToKsMuMu_eta);
-   fChain->SetBranchAddress("BToKsMuMu_etakstar_fullfit", BToKsMuMu_etakstar_fullfit, &b_BToKsMuMu_etakstar_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_fit_cos2D", BToKsMuMu_fit_cos2D, &b_BToKsMuMu_fit_cos2D);
-   fChain->SetBranchAddress("BToKsMuMu_fit_eta", BToKsMuMu_fit_eta, &b_BToKsMuMu_fit_eta);
-   fChain->SetBranchAddress("BToKsMuMu_fit_mass", BToKsMuMu_fit_mass, &b_BToKsMuMu_fit_mass);
-   fChain->SetBranchAddress("BToKsMuMu_fit_massErr", BToKsMuMu_fit_massErr, &b_BToKsMuMu_fit_massErr);
-   fChain->SetBranchAddress("BToKsMuMu_fit_phi", BToKsMuMu_fit_phi, &b_BToKsMuMu_fit_phi);
-   fChain->SetBranchAddress("BToKsMuMu_fit_pt", BToKsMuMu_fit_pt, &b_BToKsMuMu_fit_pt);
-   fChain->SetBranchAddress("BToKsMuMu_fitted_barMass", BToKsMuMu_fitted_barMass, &b_BToKsMuMu_fitted_barMass);
-   fChain->SetBranchAddress("BToKsMuMu_l_xy", BToKsMuMu_l_xy, &b_BToKsMuMu_l_xy);
-   fChain->SetBranchAddress("BToKsMuMu_l_xy_unc", BToKsMuMu_l_xy_unc, &b_BToKsMuMu_l_xy_unc);
-   fChain->SetBranchAddress("BToKsMuMu_lep1eta_fullfit", BToKsMuMu_lep1eta_fullfit, &b_BToKsMuMu_lep1eta_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_lep1phi_fullfit", BToKsMuMu_lep1phi_fullfit, &b_BToKsMuMu_lep1phi_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_lep1pt_fullfit", BToKsMuMu_lep1pt_fullfit, &b_BToKsMuMu_lep1pt_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_lep2eta_fullfit", BToKsMuMu_lep2eta_fullfit, &b_BToKsMuMu_lep2eta_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_lep2phi_fullfit", BToKsMuMu_lep2phi_fullfit, &b_BToKsMuMu_lep2phi_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_lep2pt_fullfit", BToKsMuMu_lep2pt_fullfit, &b_BToKsMuMu_lep2pt_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_mass", BToKsMuMu_mass, &b_BToKsMuMu_mass);
-   fChain->SetBranchAddress("BToKsMuMu_max_dr", BToKsMuMu_max_dr, &b_BToKsMuMu_max_dr);
-   fChain->SetBranchAddress("BToKsMuMu_min_dr", BToKsMuMu_min_dr, &b_BToKsMuMu_min_dr);
-   fChain->SetBranchAddress("BToKsMuMu_mkstar_fullfit", BToKsMuMu_mkstar_fullfit, &b_BToKsMuMu_mkstar_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_mll_fullfit", BToKsMuMu_mll_fullfit, &b_BToKsMuMu_mll_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_mll_llfit", BToKsMuMu_mll_llfit, &b_BToKsMuMu_mll_llfit);
-   fChain->SetBranchAddress("BToKsMuMu_mll_raw", BToKsMuMu_mll_raw, &b_BToKsMuMu_mll_raw);
-   fChain->SetBranchAddress("BToKsMuMu_phi", BToKsMuMu_phi, &b_BToKsMuMu_phi);
-   fChain->SetBranchAddress("BToKsMuMu_phikstar_fullfit", BToKsMuMu_phikstar_fullfit, &b_BToKsMuMu_phikstar_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_pt", BToKsMuMu_pt, &b_BToKsMuMu_pt);
-   fChain->SetBranchAddress("BToKsMuMu_ptkstar_fullfit", BToKsMuMu_ptkstar_fullfit, &b_BToKsMuMu_ptkstar_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_svprob", BToKsMuMu_svprob, &b_BToKsMuMu_svprob);
-   fChain->SetBranchAddress("BToKsMuMu_trk1eta_fullfit", BToKsMuMu_trk1eta_fullfit, &b_BToKsMuMu_trk1eta_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_trk1phi_fullfit", BToKsMuMu_trk1phi_fullfit, &b_BToKsMuMu_trk1phi_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_trk1pt_fullfit", BToKsMuMu_trk1pt_fullfit, &b_BToKsMuMu_trk1pt_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_trk2eta_fullfit", BToKsMuMu_trk2eta_fullfit, &b_BToKsMuMu_trk2eta_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_trk2phi_fullfit", BToKsMuMu_trk2phi_fullfit, &b_BToKsMuMu_trk2phi_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_trk2pt_fullfit", BToKsMuMu_trk2pt_fullfit, &b_BToKsMuMu_trk2pt_fullfit);
-   fChain->SetBranchAddress("BToKsMuMu_charge", BToKsMuMu_charge, &b_BToKsMuMu_charge);
-   fChain->SetBranchAddress("BToKsMuMu_kstar_idx", BToKsMuMu_kstar_idx, &b_BToKsMuMu_kstar_idx);
-   fChain->SetBranchAddress("BToKsMuMu_l1_idx", BToKsMuMu_l1_idx, &b_BToKsMuMu_l1_idx);
-   fChain->SetBranchAddress("BToKsMuMu_l2_idx", BToKsMuMu_l2_idx, &b_BToKsMuMu_l2_idx);
-   fChain->SetBranchAddress("BToKsMuMu_pdgId", BToKsMuMu_pdgId, &b_BToKsMuMu_pdgId);
-   fChain->SetBranchAddress("BToKsMuMu_trk1_idx", BToKsMuMu_trk1_idx, &b_BToKsMuMu_trk1_idx);
-   fChain->SetBranchAddress("BToKsMuMu_trk2_idx", BToKsMuMu_trk2_idx, &b_BToKsMuMu_trk2_idx);
-   fChain->SetBranchAddress("nKstar", &nKstar, &b_nKstar);
-   fChain->SetBranchAddress("Kstar_barMass", Kstar_barMass, &b_Kstar_barMass);
-   fChain->SetBranchAddress("Kstar_eta", Kstar_eta, &b_Kstar_eta);
-   fChain->SetBranchAddress("Kstar_fitted_barMass", Kstar_fitted_barMass, &b_Kstar_fitted_barMass);
-   fChain->SetBranchAddress("Kstar_fitted_eta", Kstar_fitted_eta, &b_Kstar_fitted_eta);
-   fChain->SetBranchAddress("Kstar_fitted_mass", Kstar_fitted_mass, &b_Kstar_fitted_mass);
-   fChain->SetBranchAddress("Kstar_fitted_phi", Kstar_fitted_phi, &b_Kstar_fitted_phi);
-   fChain->SetBranchAddress("Kstar_fitted_pt", Kstar_fitted_pt, &b_Kstar_fitted_pt);
-   fChain->SetBranchAddress("Kstar_mass", Kstar_mass, &b_Kstar_mass);
-   fChain->SetBranchAddress("Kstar_phi", Kstar_phi, &b_Kstar_phi);
-   fChain->SetBranchAddress("Kstar_pt", Kstar_pt, &b_Kstar_pt);
-   fChain->SetBranchAddress("Kstar_svprob", Kstar_svprob, &b_Kstar_svprob);
-   fChain->SetBranchAddress("Kstar_trk_deltaR", Kstar_trk_deltaR, &b_Kstar_trk_deltaR);
-   fChain->SetBranchAddress("Kstar_charge", Kstar_charge, &b_Kstar_charge);
-   fChain->SetBranchAddress("Kstar_pdgId", Kstar_pdgId, &b_Kstar_pdgId);
-   fChain->SetBranchAddress("Kstar_trk1_idx", Kstar_trk1_idx, &b_Kstar_trk1_idx);
-   fChain->SetBranchAddress("Kstar_trk2_idx", Kstar_trk2_idx, &b_Kstar_trk2_idx);
    fChain->SetBranchAddress("nElectron", &nElectron, &b_nElectron);
-   fChain->SetBranchAddress("Electron_deltaEtaSC", Electron_deltaEtaSC, &b_Electron_deltaEtaSC);
    fChain->SetBranchAddress("Electron_dxy", Electron_dxy, &b_Electron_dxy);
    fChain->SetBranchAddress("Electron_dxyErr", Electron_dxyErr, &b_Electron_dxyErr);
    fChain->SetBranchAddress("Electron_dz", Electron_dz, &b_Electron_dz);
    fChain->SetBranchAddress("Electron_dzErr", Electron_dzErr, &b_Electron_dzErr);
    fChain->SetBranchAddress("Electron_eta", Electron_eta, &b_Electron_eta);
    fChain->SetBranchAddress("Electron_fBrem", Electron_fBrem, &b_Electron_fBrem);
-   fChain->SetBranchAddress("Electron_hoe", Electron_hoe, &b_Electron_hoe);
    fChain->SetBranchAddress("Electron_ip3d", Electron_ip3d, &b_Electron_ip3d);
    fChain->SetBranchAddress("Electron_mass", Electron_mass, &b_Electron_mass);
    fChain->SetBranchAddress("Electron_mvaId", Electron_mvaId, &b_Electron_mvaId);
+   fChain->SetBranchAddress("Electron_pfRelIso", Electron_pfRelIso, &b_Electron_pfRelIso);
+   fChain->SetBranchAddress("Electron_pfmvaId", Electron_pfmvaId, &b_Electron_pfmvaId);
    fChain->SetBranchAddress("Electron_phi", Electron_phi, &b_Electron_phi);
    fChain->SetBranchAddress("Electron_pt", Electron_pt, &b_Electron_pt);
    fChain->SetBranchAddress("Electron_ptBiased", Electron_ptBiased, &b_Electron_ptBiased);
-   fChain->SetBranchAddress("Electron_r9", Electron_r9, &b_Electron_r9);
-   fChain->SetBranchAddress("Electron_sieie", Electron_sieie, &b_Electron_sieie);
    fChain->SetBranchAddress("Electron_sip3d", Electron_sip3d, &b_Electron_sip3d);
+   fChain->SetBranchAddress("Electron_trkRelIso", Electron_trkRelIso, &b_Electron_trkRelIso);
    fChain->SetBranchAddress("Electron_unBiased", Electron_unBiased, &b_Electron_unBiased);
    fChain->SetBranchAddress("Electron_vx", Electron_vx, &b_Electron_vx);
    fChain->SetBranchAddress("Electron_vy", Electron_vy, &b_Electron_vy);
    fChain->SetBranchAddress("Electron_vz", Electron_vz, &b_Electron_vz);
    fChain->SetBranchAddress("Electron_charge", Electron_charge, &b_Electron_charge);
    fChain->SetBranchAddress("Electron_pdgId", Electron_pdgId, &b_Electron_pdgId);
-   fChain->SetBranchAddress("Electron_tightCharge", Electron_tightCharge, &b_Electron_tightCharge);
    fChain->SetBranchAddress("Electron_convVeto", Electron_convVeto, &b_Electron_convVeto);
    fChain->SetBranchAddress("Electron_isLowPt", Electron_isLowPt, &b_Electron_isLowPt);
    fChain->SetBranchAddress("Electron_isPF", Electron_isPF, &b_Electron_isPF);
    fChain->SetBranchAddress("Electron_isPFoverlap", Electron_isPFoverlap, &b_Electron_isPFoverlap);
-   fChain->SetBranchAddress("Electron_lostHits", Electron_lostHits, &b_Electron_lostHits);
    fChain->SetBranchAddress("nGenPart", &nGenPart, &b_nGenPart);
-   fChain->SetBranchAddress("GenPart_pt", &GenPart_pt, &b_GenPart_pt);
-   fChain->SetBranchAddress("GenPart_eta", &GenPart_eta, &b_GenPart_eta);
-   fChain->SetBranchAddress("GenPart_phi", &GenPart_phi, &b_GenPart_phi);
-   fChain->SetBranchAddress("GenPart_vx", &GenPart_vx, &b_GenPart_vx);
-   fChain->SetBranchAddress("GenPart_vy", &GenPart_vy, &b_GenPart_vy);
-   fChain->SetBranchAddress("GenPart_vz", &GenPart_vz, &b_GenPart_vz);
-   fChain->SetBranchAddress("GenPart_pdgId", &GenPart_pdgId, &b_GenPart_pdgId);
-   fChain->SetBranchAddress("GenPart_genPartIdxMother", &GenPart_genPartIdxMother, &b_GenPart_genPartIdxMother);
+   fChain->SetBranchAddress("GenPart_eta", GenPart_eta, &b_GenPart_eta);
+   fChain->SetBranchAddress("GenPart_mass", GenPart_mass, &b_GenPart_mass);
+   fChain->SetBranchAddress("GenPart_phi", GenPart_phi, &b_GenPart_phi);
+   fChain->SetBranchAddress("GenPart_pt", GenPart_pt, &b_GenPart_pt);
+   fChain->SetBranchAddress("GenPart_vx", GenPart_vx, &b_GenPart_vx);
+   fChain->SetBranchAddress("GenPart_vy", GenPart_vy, &b_GenPart_vy);
+   fChain->SetBranchAddress("GenPart_vz", GenPart_vz, &b_GenPart_vz);
+   fChain->SetBranchAddress("GenPart_genPartIdxMother", GenPart_genPartIdxMother, &b_GenPart_genPartIdxMother);
+   fChain->SetBranchAddress("GenPart_pdgId", GenPart_pdgId, &b_GenPart_pdgId);
+   fChain->SetBranchAddress("GenPart_status", GenPart_status, &b_GenPart_status);
+   fChain->SetBranchAddress("GenPart_statusFlags", GenPart_statusFlags, &b_GenPart_statusFlags);
+   fChain->SetBranchAddress("Generator_binvar", &Generator_binvar, &b_Generator_binvar);
+   fChain->SetBranchAddress("Generator_scalePDF", &Generator_scalePDF, &b_Generator_scalePDF);
+   fChain->SetBranchAddress("Generator_weight", &Generator_weight, &b_Generator_weight);
+   fChain->SetBranchAddress("Generator_x1", &Generator_x1, &b_Generator_x1);
+   fChain->SetBranchAddress("Generator_x2", &Generator_x2, &b_Generator_x2);
+   fChain->SetBranchAddress("Generator_xpdf1", &Generator_xpdf1, &b_Generator_xpdf1);
+   fChain->SetBranchAddress("Generator_xpdf2", &Generator_xpdf2, &b_Generator_xpdf2);
+   fChain->SetBranchAddress("Generator_id1", &Generator_id1, &b_Generator_id1);
+   fChain->SetBranchAddress("Generator_id2", &Generator_id2, &b_Generator_id2);
+   fChain->SetBranchAddress("genWeight", &genWeight, &b_genWeight);
+   fChain->SetBranchAddress("nPSWeight", &nPSWeight, &b_nPSWeight);
+   fChain->SetBranchAddress("PSWeight", PSWeight, &b_PSWeight);
    fChain->SetBranchAddress("nMuon", &nMuon, &b_nMuon);
    fChain->SetBranchAddress("Muon_dxy", Muon_dxy, &b_Muon_dxy);
    fChain->SetBranchAddress("Muon_dxyErr", Muon_dxyErr, &b_Muon_dxyErr);
@@ -304,35 +182,23 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("Muon_ip3d", Muon_ip3d, &b_Muon_ip3d);
    fChain->SetBranchAddress("Muon_mass", Muon_mass, &b_Muon_mass);
    fChain->SetBranchAddress("Muon_pfRelIso03_all", Muon_pfRelIso03_all, &b_Muon_pfRelIso03_all);
-   fChain->SetBranchAddress("Muon_pfRelIso03_chg", Muon_pfRelIso03_chg, &b_Muon_pfRelIso03_chg);
    fChain->SetBranchAddress("Muon_pfRelIso04_all", Muon_pfRelIso04_all, &b_Muon_pfRelIso04_all);
    fChain->SetBranchAddress("Muon_phi", Muon_phi, &b_Muon_phi);
    fChain->SetBranchAddress("Muon_pt", Muon_pt, &b_Muon_pt);
    fChain->SetBranchAddress("Muon_ptErr", Muon_ptErr, &b_Muon_ptErr);
-   fChain->SetBranchAddress("Muon_segmentComp", Muon_segmentComp, &b_Muon_segmentComp);
    fChain->SetBranchAddress("Muon_sip3d", Muon_sip3d, &b_Muon_sip3d);
    fChain->SetBranchAddress("Muon_vx", Muon_vx, &b_Muon_vx);
    fChain->SetBranchAddress("Muon_vy", Muon_vy, &b_Muon_vy);
    fChain->SetBranchAddress("Muon_vz", Muon_vz, &b_Muon_vz);
    fChain->SetBranchAddress("Muon_charge", Muon_charge, &b_Muon_charge);
-   fChain->SetBranchAddress("Muon_genPartIdx", Muon_genPartIdx, &b_Muon_genPartIdx);
    fChain->SetBranchAddress("Muon_isTriggering", Muon_isTriggering, &b_Muon_isTriggering);
-   fChain->SetBranchAddress("Muon_nStations", Muon_nStations, &b_Muon_nStations);
    fChain->SetBranchAddress("Muon_pdgId", Muon_pdgId, &b_Muon_pdgId);
-   fChain->SetBranchAddress("Muon_tightCharge", Muon_tightCharge, &b_Muon_tightCharge);
-   fChain->SetBranchAddress("Muon_highPtId", Muon_highPtId, &b_Muon_highPtId);
-   fChain->SetBranchAddress("Muon_inTimeMuon", Muon_inTimeMuon, &b_Muon_inTimeMuon);
    fChain->SetBranchAddress("Muon_isGlobal", Muon_isGlobal, &b_Muon_isGlobal);
    fChain->SetBranchAddress("Muon_isPFcand", Muon_isPFcand, &b_Muon_isPFcand);
    fChain->SetBranchAddress("Muon_isTracker", Muon_isTracker, &b_Muon_isTracker);
    fChain->SetBranchAddress("Muon_mediumId", Muon_mediumId, &b_Muon_mediumId);
-   fChain->SetBranchAddress("Muon_mediumPromptId", Muon_mediumPromptId, &b_Muon_mediumPromptId);
-   fChain->SetBranchAddress("Muon_miniIsoId", Muon_miniIsoId, &b_Muon_miniIsoId);
-   fChain->SetBranchAddress("Muon_multiIsoId", Muon_multiIsoId, &b_Muon_multiIsoId);
-   fChain->SetBranchAddress("Muon_mvaId", Muon_mvaId, &b_Muon_mvaId);
    fChain->SetBranchAddress("Muon_pfIsoId", Muon_pfIsoId, &b_Muon_pfIsoId);
    fChain->SetBranchAddress("Muon_softId", Muon_softId, &b_Muon_softId);
-   fChain->SetBranchAddress("Muon_softMvaId", Muon_softMvaId, &b_Muon_softMvaId);
    fChain->SetBranchAddress("Muon_tightId", Muon_tightId, &b_Muon_tightId);
    fChain->SetBranchAddress("Muon_tkIsoId", Muon_tkIsoId, &b_Muon_tkIsoId);
    fChain->SetBranchAddress("Muon_triggerIdLoose", Muon_triggerIdLoose, &b_Muon_triggerIdLoose);
@@ -347,6 +213,12 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("TriggerMuon_charge", TriggerMuon_charge, &b_TriggerMuon_charge);
    fChain->SetBranchAddress("TriggerMuon_pdgId", TriggerMuon_pdgId, &b_TriggerMuon_pdgId);
    fChain->SetBranchAddress("TriggerMuon_trgMuonIndex", TriggerMuon_trgMuonIndex, &b_TriggerMuon_trgMuonIndex);
+   fChain->SetBranchAddress("Pileup_nTrueInt", &Pileup_nTrueInt, &b_Pileup_nTrueInt);
+   fChain->SetBranchAddress("Pileup_pudensity", &Pileup_pudensity, &b_Pileup_pudensity);
+   fChain->SetBranchAddress("Pileup_gpudensity", &Pileup_gpudensity, &b_Pileup_gpudensity);
+   fChain->SetBranchAddress("Pileup_nPU", &Pileup_nPU, &b_Pileup_nPU);
+   fChain->SetBranchAddress("Pileup_sumEOOT", &Pileup_sumEOOT, &b_Pileup_sumEOOT);
+   fChain->SetBranchAddress("Pileup_sumLOOT", &Pileup_sumLOOT, &b_Pileup_sumLOOT);
    fChain->SetBranchAddress("fixedGridRhoFastjetAll", &fixedGridRhoFastjetAll, &b_fixedGridRhoFastjetAll);
    fChain->SetBranchAddress("fixedGridRhoFastjetCentral", &fixedGridRhoFastjetCentral, &b_fixedGridRhoFastjetCentral);
    fChain->SetBranchAddress("fixedGridRhoFastjetCentralCalo", &fixedGridRhoFastjetCentralCalo, &b_fixedGridRhoFastjetCentralCalo);
@@ -368,6 +240,7 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("ProbeTracks_charge", ProbeTracks_charge, &b_ProbeTracks_charge);
    fChain->SetBranchAddress("ProbeTracks_isLostTrk", ProbeTracks_isLostTrk, &b_ProbeTracks_isLostTrk);
    fChain->SetBranchAddress("ProbeTracks_isPacked", ProbeTracks_isPacked, &b_ProbeTracks_isPacked);
+   fChain->SetBranchAddress("ProbeTracks_nValidHits", ProbeTracks_nValidHits, &b_ProbeTracks_nValidHits);
    fChain->SetBranchAddress("ProbeTracks_pdgId", ProbeTracks_pdgId, &b_ProbeTracks_pdgId);
    fChain->SetBranchAddress("ProbeTracks_isMatchedToEle", ProbeTracks_isMatchedToEle, &b_ProbeTracks_isMatchedToEle);
    fChain->SetBranchAddress("ProbeTracks_isMatchedToLooseMuon", ProbeTracks_isMatchedToLooseMuon, &b_ProbeTracks_isMatchedToLooseMuon);
@@ -415,6 +288,10 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("SV_dlen", SV_dlen, &b_SV_dlen);
    fChain->SetBranchAddress("SV_dlenSig", SV_dlenSig, &b_SV_dlenSig);
    fChain->SetBranchAddress("SV_pAngle", SV_pAngle, &b_SV_pAngle);
+   fChain->SetBranchAddress("Electron_genPartIdx", Electron_genPartIdx, &b_Electron_genPartIdx);
+   fChain->SetBranchAddress("Electron_genPartFlav", Electron_genPartFlav, &b_Electron_genPartFlav);
+   fChain->SetBranchAddress("Muon_genPartIdx", Muon_genPartIdx, &b_Muon_genPartIdx);
+   fChain->SetBranchAddress("Muon_genPartFlav", Muon_genPartFlav, &b_Muon_genPartFlav);
    fChain->SetBranchAddress("SV_chi2", SV_chi2, &b_SV_chi2);
    fChain->SetBranchAddress("SV_eta", SV_eta, &b_SV_eta);
    fChain->SetBranchAddress("SV_mass", SV_mass, &b_SV_mass);
@@ -424,31 +301,55 @@ void BNanoClass::Init(TTree *tree)
    fChain->SetBranchAddress("SV_x", SV_x, &b_SV_x);
    fChain->SetBranchAddress("SV_y", SV_y, &b_SV_y);
    fChain->SetBranchAddress("SV_z", SV_z, &b_SV_z);
-//   Notify();
+   fChain->SetBranchAddress("ProbeTracks_genPartIdx", ProbeTracks_genPartIdx, &b_ProbeTracks_genPartIdx);
+   fChain->SetBranchAddress("ProbeTracks_genPartFlav", ProbeTracks_genPartFlav, &b_ProbeTracks_genPartFlav);
 }
 
-/*Bool_t BNanoClass::Notify()
-{
-   // The Notify() function is called when a new file is opened. This
-   // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normally not necessary to make changes
-   // to the generated code, but the routine can be extended by the
-   // user if needed. The return value is currently not used.
+bool BNanoClass::isMcB( int theB ) {
 
-   return kTRUE;
+	// taking index
+	int ele1_idx = BToKEE_l1Idx[theB];
+	int ele2_idx = BToKEE_l2Idx[theB];
+	int k_idx    = BToKEE_kIdx[theB];
+
+	if (ele1_idx == -1 || ele2_idx  == -1 || k_idx ) return false;
+	if (ele1_idx >1000 || ele2_idx  >1000  || k_idx>1000 ) return false;
+
+
+	//         // Gen tree
+	int k_genPartIdx      = ProbeTracks_genPartIdx[k_idx];  
+	int k_genMotherIdx    = GenPart_genPartIdxMother[k_genPartIdx];
+	int k_genGMotherIdx   = GenPart_genPartIdxMother[k_genMotherIdx];
+	int k_genPdgId        = GenPart_pdgId[k_genPartIdx];
+	int k_genMotherPdgId  = GenPart_pdgId[k_genMotherIdx];
+	int k_genGMotherPdgId = GenPart_pdgId[k_genGMotherIdx];
+
+	int ele1_genPartIdx      = Electron_genPartIdx[ele1_idx];  
+	int ele1_genMotherIdx    = GenPart_genPartIdxMother[ele1_genPartIdx];
+	int ele1_genGMotherIdx   = GenPart_genPartIdxMother[ele1_genMotherIdx];
+	int ele1_genPdgId        = GenPart_pdgId[ele1_genPartIdx];
+	int ele1_genMotherPdgId  = GenPart_pdgId[ele1_genMotherIdx];
+	int ele1_genGMotherPdgId = GenPart_pdgId[ele1_genGMotherIdx];
+
+	int ele2_genPartIdx      = Electron_genPartIdx[ele2_idx];  
+	int ele2_genMotherIdx    = GenPart_genPartIdxMother[ele2_genPartIdx];
+	int ele2_genGMotherIdx   = GenPart_genPartIdxMother[ele2_genMotherIdx];
+	int ele2_genPdgId        = GenPart_pdgId[ele2_genPartIdx];
+	int ele2_genMotherPdgId  = GenPart_pdgId[ele2_genMotherIdx];
+	int ele2_genGMotherPdgId = GenPart_pdgId[ele2_genGMotherIdx];
+
+	// B -> K J/psi(ll) at gen level
+	// 443 = J/Psi; 521 = B+
+	bool okMatch = (ele1_genPartIdx>-0.5 && ele2_genPartIdx>-0.5 && k_genPartIdx>-0.5);
+	bool RK_res1 = abs(ele1_genMotherPdgId)==443 && abs(k_genMotherPdgId)==521;
+	bool RK_res2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genGMotherPdgId) && (k_genMotherPdgId==ele2_genGMotherPdgId);
+	bool RK_res = okMatch && RK_res1 && RK_res2;
+
+
+	bool RK_nores1 = abs(ele1_genMotherPdgId)==521 && abs(k_genMotherPdgId)==521;
+	bool RK_nores2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genMotherPdgId) && (k_genMotherPdgId==ele2_genMotherPdgId);
+	bool RK_nores = okMatch && RK_nores1 && RK_nores2;
+
+	return (RK_res || RK_nores);
 }
 
-void BNanoClass::Show(Long64_t entry)
-{
-// Print contents of entry.
-// If entry is not specified, print current entry
-   if (!fChain) return;
-   fChain->Show(entry);
-}
-Int_t BNanoClass::Cut(Long64_t entry)
-{
-// This function may be called from Loop.
-// returns  1 if entry is accepted.
-// returns -1 otherwise.
-   return 1;
-}*/
