@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 	std::string in_letter= argv[2]; // Letter label for dataset analyzed A,B,C,D
 	int in_files = std::atoi(argv[4]);// file index
 	
-	bool isMC=false;
+	bool isMC=true;
 	
 	std::string INPUTDIR;
 	std::cout << "Loading input files from: " << std::endl;
@@ -207,14 +207,15 @@ int main(int argc, char **argv){
 	std::cout <<"N entries " << evt.fChain->GetEntries() << std::endl;  // input check
 
 	for(i=0;i<evt.fChain->GetEntries();i++){
-	//	if (i%10000==0)
-	std::cout << "On entry " << i  << std::endl;  // loop proceeding ok
-		evt.fChain->GetEntry(i);
-		iHLT_Mu12_IP6= (int)evt.HLT_Mu12_IP6;
-		iHLT_Mu9_IP6= (int)evt.HLT_Mu9_IP6;
-		if (!evt.HLT_Mu12_IP6 & !evt.HLT_Mu9_IP6) continue; // Trigger paths to be satisfied
 
-		std::cout << " HLT_Mu12_IP6 "<<iHLT_Mu12_IP6 <<  " HLT_Mu9_IP6 "<< iHLT_Mu9_IP6 <<  std::endl; 
+	if (i%10000==0)std::cout << "On entry " << i  << std::endl;  // loop proceeding ok
+
+		evt.fChain->GetEntry(i);
+
+
+		if (!evt.HLT_Mu12_IP6 && !evt.HLT_Mu9_IP6) continue; // Trigger paths to be satisfied
+
+
 		std::vector<float> B_sel_disc;
 		std::vector<int> B_sel_Idx;
 		
@@ -233,7 +234,7 @@ int main(int argc, char **argv){
 			
 			//perform selection
 			if ( kSel && ele1Sel && ele2Sel){ // decay products selection
-			std::cout << "BToKEE "<< j <<"  passing selections n " << counter << "Vtxprob " <<evt.BToKEE_svprob[j] << " mass " << evt.BToKEE_fit_mass[j]<< std::endl; 
+
 				if (vtxFitSel){ // whole event selection
 					counter++;
 					B_sel_disc.push_back(evt.BToKEE_svprob[j]); // pushing back whichever variable to perform ranking of B candidates and choose the best candidate to be saved
@@ -243,7 +244,6 @@ int main(int argc, char **argv){
 			}	
 		}
 
-		std::cout << "BTVoKEE loop ended  "<< std::endl; 
 
 		//std::cout << "array size " << B_sel_Vprob->size() << std::endl; 
 		//sorting events passing selections in terms of sv_prob
@@ -262,7 +262,6 @@ int main(int argc, char **argv){
 		}
 
 		if (idx != -1){
-			std::cout << "check  "<< idx << " ele1 is PF "<< evt.Electron_isPF[evt.BToKEE_l1Idx[idx]] << " ele2 is PF " << evt.Electron_isPF[evt.BToKEE_l2Idx[idx]] <<  std::endl; 
 			std::cout << "__________________________________________________________________________single selected B : index  " << idx << "probV : " << evt.BToKEE_svprob[idx] << std::endl; 
 
 			entry = i;
@@ -270,10 +269,8 @@ int main(int argc, char **argv){
 			iHLT_Mu12_IP6 = evt.HLT_Mu12_IP6;
 			iHLT_Mu9_IP6 = evt.HLT_Mu9_IP6;
 
-			BToKEE_chi2=evt.BToKEE_chi2[idx];   //[nBToKEE]
 			BToKEE_cos2D=evt.BToKEE_cos2D[idx];   //[nBToKEE]
 			BToKEE_eta=evt.BToKEE_eta[idx];   //[nBToKEE]
-			BToKEE_cos2D=evt.BToKEE_fit_cos2D[idx];   //[nBToKEE]
 			BToKEE_fit_eta=evt.BToKEE_fit_eta[idx];   //[nBToKEE]
 			BToKEE_fit_k_eta=evt.BToKEE_fit_k_eta[idx];   //[nBToKEE]
 			BToKEE_fit_k_phi=evt.BToKEE_fit_k_phi[idx];   //[nBToKEE]
@@ -336,9 +333,9 @@ int main(int argc, char **argv){
 						if (ePair){ // checks if the two electrons form a gen lepton pair 
 							for(int x=0; x<evt.nGenPart; x++){ //loop to select a K 
 
-								bool BToKJpsi = evt.GenPart_pdgId[evt.GenPart_genPartIdxMother[h]]==443 && fabs(evt.GenPart_pdgId[x])== 312 && evt.GenPart_genPartIdxMother[h]==evt.GenPart_genPartIdxMother[x];
+								bool BToKJpsi = evt.GenPart_pdgId[evt.GenPart_genPartIdxMother[h]]==443 && fabs(evt.GenPart_pdgId[x])== 321 && evt.GenPart_genPartIdxMother[evt.GenPart_genPartIdxMother[h]]==evt.GenPart_genPartIdxMother[x];
 
-								bool BToKee =fabs( evt.GenPart_pdgId[evt.GenPart_genPartIdxMother[h]])==521 && fabs(evt.GenPart_pdgId[x])== 312 && evt.GenPart_genPartIdxMother[h]==evt.GenPart_genPartIdxMother[x];
+								bool BToKee =fabs( evt.GenPart_pdgId[evt.GenPart_genPartIdxMother[h]])==521 && fabs(evt.GenPart_pdgId[x])== 321 && evt.GenPart_genPartIdxMother[h]==evt.GenPart_genPartIdxMother[x];
 
 								if(BToKJpsi || BToKee){ //checks if K has same parent as lepton pair (non res) or lepton pair parent (res)
 									GenPart_l1_pt = evt.GenPart_pt[k];							
@@ -380,50 +377,3 @@ int main(int argc, char **argv){
 
 
 
-bool BNanoClass::isMcB( int theB ) {
-
-	// taking index
-	int ele1_idx = BToKEE_l1Idx[theB];
-	int ele2_idx = BToKEE_l2Idx[theB];
-	int k_idx    = BToKEE_kIdx[theB];
-
-	if (ele1_idx == -1 || ele2_idx  == -1 || k_idx ) return false;
-	if (ele1_idx >1000 || ele2_idx  >1000  || k_idx>1000 ) return false;
-
-
-	//         // Gen tree
-	int k_genPartIdx      = ProbeTracks_genPartIdx[k_idx];  
-	int k_genMotherIdx    = GenPart_genPartIdxMother[k_genPartIdx];
-	int k_genGMotherIdx   = GenPart_genPartIdxMother[k_genMotherIdx];
-	int k_genPdgId        = GenPart_pdgId[k_genPartIdx];
-	int k_genMotherPdgId  = GenPart_pdgId[k_genMotherIdx];
-	int k_genGMotherPdgId = GenPart_pdgId[k_genGMotherIdx];
-
-	int ele1_genPartIdx      = Electron_genPartIdx[ele1_idx];  
-	int ele1_genMotherIdx    = GenPart_genPartIdxMother[ele1_genPartIdx];
-	int ele1_genGMotherIdx   = GenPart_genPartIdxMother[ele1_genMotherIdx];
-	int ele1_genPdgId        = GenPart_pdgId[ele1_genPartIdx];
-	int ele1_genMotherPdgId  = GenPart_pdgId[ele1_genMotherIdx];
-	int ele1_genGMotherPdgId = GenPart_pdgId[ele1_genGMotherIdx];
-
-	int ele2_genPartIdx      = Electron_genPartIdx[ele2_idx];  
-	int ele2_genMotherIdx    = GenPart_genPartIdxMother[ele2_genPartIdx];
-	int ele2_genGMotherIdx   = GenPart_genPartIdxMother[ele2_genMotherIdx];
-	int ele2_genPdgId        = GenPart_pdgId[ele2_genPartIdx];
-	int ele2_genMotherPdgId  = GenPart_pdgId[ele2_genMotherIdx];
-	int ele2_genGMotherPdgId = GenPart_pdgId[ele2_genGMotherIdx];
-
-	// B -> K J/psi(ll) at gen level
-	// 443 = J/Psi; 521 = B+
-	bool okMatch = (ele1_genPartIdx>-0.5 && ele2_genPartIdx>-0.5 && k_genPartIdx>-0.5);
-	bool RK_res1 = abs(ele1_genMotherPdgId)==443 && abs(k_genMotherPdgId)==521;
-	bool RK_res2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genGMotherPdgId) && (k_genMotherPdgId==ele2_genGMotherPdgId);
-	bool RK_res = okMatch && RK_res1 && RK_res2;
-
-
-	bool RK_nores1 = abs(ele1_genMotherPdgId)==521 && abs(k_genMotherPdgId)==521;
-	bool RK_nores2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genMotherPdgId) && (k_genMotherPdgId==ele2_genMotherPdgId);
-	bool RK_nores = okMatch && RK_nores1 && RK_nores2;
-
-	return (RK_res || RK_nores);
-}
