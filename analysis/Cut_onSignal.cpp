@@ -30,11 +30,12 @@
 int main(int argc, char **argv){
 	
 	std::string INPUTDIR = argv[1];
-	std::string outfile = argv[2];
-	double low_pfmvaId = atof(argv[3]);
-	double high_pfmvaId = atof(argv[4]);
+	std::string outfile_f = argv[2];
+	std::string outfile_e = argv[3];
+	double low_pfmvaId = atof(argv[4]);
+	double high_pfmvaId = atof(argv[5]);
 	//std::string pattern_idx = argv[2];
-	std::ofstream outf;
+	std::ofstream outf,oute;
 /*	double Bin1_min =-4 ;
 	double Bin1_max =-1.4 ;
 	double Bin2_min =-4 ;
@@ -43,6 +44,7 @@ int main(int argc, char **argv){
 	double step = 0.4;*/
 	//int npoints = (int)(Bin1_max-Bin1_min)/step * (int)(Bin2_max-Bin2_min)/step;
 
+	bool print=false;
 	bool isMC;	
 	TH1D* mB[2];
 	mB[0] =new TH1D ("mBres", "mBres",50,4.7,5.7);
@@ -71,7 +73,7 @@ int main(int argc, char **argv){
 	
 	while (std::getline(input, pattern)) {
 	
-	for(int j =0; j<1000; j++){
+	/*for(int j =0; j<1000; j++){
 	if (j%100==0)std::cout <<"looping on files..." << std::endl;
 //	TFile * file;
 //	file  =TFile::Open((INPUTDIR+"/"+pattern+"skimmedNANO_BPark_data_"+std::to_string(j)+"_2020Jan2016.root").c_str()); 
@@ -82,11 +84,12 @@ int main(int argc, char **argv){
 //	if (point_tree->GetEntries()==0 )continue;
 //	file->Close("R");
 //	delete file;
-	chain->Add((INPUTDIR+"/"+pattern+"/skimmedNANO_BPark_data_"+std::to_string(j)+"_2020Jan2016.root").c_str());
+	chain->Add((INPUTDIR+"/"+pattern+"/BPark_mc_"+std::to_string(j)+"_2020Jan2016.root").c_str());
 	
-	}
+	}*/
 	}	
-	SingleBClass evt;
+	chain->Add("~/Bparking/CMSSW_10_2_15/src/macros/newElectronPF/analysis/mc.root");
+	SelectedBClass evt;
 	evt.Init(chain);
 	
 	
@@ -110,31 +113,31 @@ int main(int argc, char **argv){
 //				if (i%10000 ==0)std::cout << "Looping on entry" <<i <<  std::endl;
 
 
-				bool ele1LowPtBarrel =   evt.BToKEE_l1pt< 5 && fabs(evt.BToKEE_l1eta)< 1.5;
-				bool ele2LowPtBarrel =   evt.BToKEE_l2pt< 5 && fabs(evt.BToKEE_l2eta)< 1.5;
-				bool CutLowPt1 = evt.BToKEE_l1pfmvaId > low_pfmvaId;
-				bool CutLowPt2 = evt.BToKEE_l2pfmvaId > low_pfmvaId;
+				bool ele1LowPtBarrel =   evt.BToKEE_l1_pt< 5 && fabs(evt.BToKEE_l1_eta)< 1.5/* && evt.BToKEE_l1isPF*/;
+				bool ele2LowPtBarrel =   evt.BToKEE_l2_pt< 5 && fabs(evt.BToKEE_l2_eta)< 1.5/* && evt.BToKEE_l2isPF*/;
+				bool CutLowPt1 = evt.BToKEE_l1_pfmvaId > low_pfmvaId;
+				bool CutLowPt2 = evt.BToKEE_l2_pfmvaId > low_pfmvaId;
 				
-				bool CutPt1 = evt.BToKEE_l1pfmvaId > high_pfmvaId;
-				bool CutPt2 = evt.BToKEE_l2pfmvaId > high_pfmvaId;
+				bool CutPt1 = evt.BToKEE_l1_pfmvaId > high_pfmvaId;
+				bool CutPt2 = evt.BToKEE_l2_pfmvaId > high_pfmvaId;
 				//mB_pfmvaId->Fill(evt.BToKEE_l1pfmvaId);
 			//	mB_pfmvaId->Fill(evt.BToKEE_l2pfmvaId);
 				
 //				if (evt.BToKEE_pt >3.5/* && fabs(evt.BToKEE_l1eta)< 1.5 && fabs(evt.BToKEE_l2eta)< 1.5*/){
-				if(evt.BToKEE_l1pt<= 5 ){
-					if( evt.BToKEE_l2pt<= 5/* && fabs(evt.BToKEE_l2eta)< 1.5*/){
+				if(evt.BToKEE_l1_pt<= 5 ){
+					if( evt.BToKEE_l2_pt<= 5/* && fabs(evt.BToKEE_l2eta)< 1.5*/){
 					
-					if (evt.BToKEE_l1pfmvaId > low_pfmvaId && evt.BToKEE_l2pfmvaId > low_pfmvaId )
+					if (evt.BToKEE_l1_pfmvaId > low_pfmvaId && evt.BToKEE_l2_pfmvaId > low_pfmvaId )
 						{ 
-								if (evt.BToKEE_mll_raw >3 &&  evt.BToKEE_mll_raw<3.3)mB[0]->Fill(evt.BToKEE_fit_mass);
-								else if (evt.BToKEE_mll_llfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass);
+								if (evt.BToKEE_mll_fullfit >3 &&  evt.BToKEE_mll_fullfit<3.3)mB[0]->Fill(evt.BToKEE_fit_mass,1.454);
+								else if (evt.BToKEE_mll_llfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass,1.454);
 
 						}
 					}else{
-					if (evt.BToKEE_l1pfmvaId > low_pfmvaId  && evt.BToKEE_l2pfmvaId > high_pfmvaId )
+					if (evt.BToKEE_l1_pfmvaId > low_pfmvaId  && evt.BToKEE_l2_pfmvaId > high_pfmvaId )
 						{ 
-								if (evt.BToKEE_mll_raw>3 &&  evt.BToKEE_mll_raw<3.3)mB[0]->Fill(evt.BToKEE_fit_mass);
-								else if (evt.BToKEE_mll_llfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass);
+								if (evt.BToKEE_mll_fullfit>3 &&  evt.BToKEE_mll_fullfit<3.3)mB[0]->Fill(evt.BToKEE_fit_mass,1.454);
+								else if (evt.BToKEE_mll_llfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass,1.454);
 
 						}
 
@@ -142,42 +145,51 @@ int main(int argc, char **argv){
 
 				}else{
 				
-					if( evt.BToKEE_l2pt< 5 /*&& fabs(evt.BToKEE_l2eta)< 1.5*/){
+					if( evt.BToKEE_l2_pt< 5 /*&& fabs(evt.BToKEE_l2eta)< 1.5*/){
 					
-					if (evt.BToKEE_l1pfmvaId > high_pfmvaId && evt.BToKEE_l2pfmvaId > low_pfmvaId )
+					if (evt.BToKEE_l1_pfmvaId > high_pfmvaId && evt.BToKEE_l2_pfmvaId > low_pfmvaId )
 						{ 
-								if (evt.BToKEE_mll_raw>3 &&  evt.BToKEE_mll_raw<3.3)mB[0]->Fill(evt.BToKEE_fit_mass);
-								else if (evt.BToKEE_mll_llfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass);
+								if (evt.BToKEE_mll_fullfit>3 &&  evt.BToKEE_mll_fullfit<3.3)mB[0]->Fill(evt.BToKEE_fit_mass,1.454);
+								else if (evt.BToKEE_mll_fullfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass,1.454);
 
 						}
 					}else{
-					if (evt.BToKEE_l1pfmvaId > high_pfmvaId  && evt.BToKEE_l2pfmvaId > high_pfmvaId )
+					if (evt.BToKEE_l1_pfmvaId > high_pfmvaId  && evt.BToKEE_l2_pfmvaId > high_pfmvaId )
 						{ 
-								if (evt.BToKEE_mll_raw>3 &&  evt.BToKEE_mll_raw<3.3)mB[0]->Fill(evt.BToKEE_fit_mass);
-								else if (evt.BToKEE_mll_llfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass);
+								if (evt.BToKEE_mll_fullfit>3 &&  evt.BToKEE_mll_raw<3.3)mB[0]->Fill(evt.BToKEE_fit_mass,1.454);
+								else if (evt.BToKEE_mll_fullfit<2.5) mB[1]->Fill(evt.BToKEE_fit_mass,1.454);
 
 						}
 
 					}
 
 				}
-//	}
+	
 	}
 	std::cout << "out of loop on entries" << std::endl;
-	double fmerit = 0;
-	fmerit = fit(mB[0],0,2,true);
-	std::cout << "low "<< low_pfmvaId << "high " << high_pfmvaId << "merit" << fmerit << std::endl;
+	std::pair<double,double> SBres,SBnores;
+	SBres = fit(mB[0],0,2,true,0);
+	SBnores = fit(mB[1],1,1,false,SBres.first);
+	std::cout << "low "<< low_pfmvaId << "high " << high_pfmvaId << "merit" << SBres.first << std::endl;
+	std::cout << "low "<< low_pfmvaId << "high " << high_pfmvaId << "merit" << SBnores.first << std::endl;
 //	merit->SetBinContent(merit->GetXaxis()->FindBin(low_pfmvaId+step/2),merit->GetYaxis()->FindBin(high_pfmvaId+step/2),fmerit);	
 
-	outf.open(outfile.c_str(), std::ios_base::app);	 
-	outf << low_pfmvaId << " " << high_pfmvaId << " " << fmerit << std::endl;
+	outf.open((outfile_f+"_res").c_str(), std::ios_base::app);	 
+	oute.open((outfile_f+"_nores").c_str(), std::ios_base::app);	 
+	outf << low_pfmvaId << " " << high_pfmvaId << " " << SBres.first << " " << SBres.second << std::endl;
+	oute << low_pfmvaId << " " << high_pfmvaId << " " << SBnores.first << " " << SBnores.second << std::endl;
+//	outf << low_pfmvaId << " " << high_pfmvaId << " " <<  << std::endl;
 	outf.close();
-	//char select[30];
-//	sprintf(select,"_%.2f_%.2f",low_pfmvaId,high_pfmvaId);
-//	std::string lable = std::string(select);	
+	oute.close();
+	
+	if(print){
+	char select[30];
+	sprintf(select,"_%.2f_%.2f",low_pfmvaId,high_pfmvaId);
+	std::string lable = std::string(select);	
 //	TFile * file  =TFile::Open(("histos_"+lable+".root").c_str(),"RECREATE"); 
-//	mB[0]->SaveAs(("histos_"+lable+"mBres.root").c_str());
-//	mB[1]->SaveAs(("histos_"+lable+"mBnores.root").c_str());
+	mB[0]->SaveAs(("histos_"+lable+"mBres.root").c_str());
+	mB[1]->SaveAs(("histos_"+lable+"mBnores.root").c_str());
+	}
 //	mB_pfmvaId->SaveAs(("histos_"+lable+"pfmvaId.root").c_str());
 //	SavePlot("M_{B}(GeV)",mB[0],"newElectronPF/mB_cut_res",false, NULL,false);
 //	SavePlot("M_{B}(GeV)",mB[1],"newElectronPF/mB_cut_nores",false, NULL,false);

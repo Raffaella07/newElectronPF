@@ -1,8 +1,8 @@
 #include "../interface/BParkTools.h"
 #include "TTree.h"
-#include <ROOT/RDataFrame.hxx>
-#include <ROOT/RVec.hxx>
-#include "TStopwatch.h"
+//#include <ROOT/RDataFrame.hxx>
+//#include <ROOT/RVec.hxx>
+//#include "TStopwatch.h"
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -28,22 +28,50 @@ int main(int argc, char **argv){
 	//--grab and initialize trees
 	TFile* file_sigMC = TFile::Open(argv[1]);
 	TFile* file_backMC = TFile::Open(argv[2]);
-	TFile* file_back = TFile::Open(argv[3]);
+//	TFile* file_back = TFile::Open(argv[3]);
 	TTree* EvTree = (TTree*)file_sigMC->Get("Tree");
 	TTree* BG_MCTree = (TTree*)file_backMC->Get("Tree");
-	TTree* BGTree = (TTree*)file_back->Get("BGTree");
+//	TTree* BGTree = (TTree*)file_back->Get("BGTree");
+	std::string bkg1_path = "/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/ParkingBPH1/crab_data_Run2018D_part1/200116_151214/0000/";
+	std::string bkg_path = "/eos/home-r/ratramon/Fake_electrons_trip";
+	TChain *background1 = new TChain("Events");
+	TChain *background = new TChain("Tree");
+
+	background1->Add((bkg1_path+"BParkNANO_data_2020Jan16_11*").c_str());
+	
+	background->Add((bkg_path+"/1_D_0/skimmed*.root").c_str());
+	background->Add((bkg_path+"/1_D_1/skimmed*.root").c_str());
+	background->Add((bkg_path+"/1_D_2/skimmed*.root").c_str());
+	std::cout << "Loaded " << background->GetEntries() << " entries for background" << std::endl;
+	background->Add((bkg_path+"/1_D_3/skimmed*.root").c_str());
+	background->Add((bkg_path+"/1_D_4/skimmed*.root").c_str());
+	background->Add((bkg_path+"/1_D_5/skimmed*.root").c_str());
+	std::cout << "Loaded " << background->GetEntries() << " entries for background" << std::endl;
+	background->Add((bkg_path+"/4_D_0/skimmed*.root").c_str());
+	background->Add((bkg_path+"/4_D_1/skimmed*.root").c_str());
+	std::cout << "Loaded " << background->GetEntries() << " entries for background" << std::endl;
+	background->Add((bkg_path+"/4_D_2/skimmed*.root").c_str());
+	background->Add((bkg_path+"/4_D_3/skimmed*.root").c_str());
+	std::cout << "Loaded " << background->GetEntries() << " entries for background" << std::endl;
+	background->Add((bkg_path+"/4_D_4/skimmed*.root").c_str());
+	background->Add((bkg_path+"/4_D_5/skimmed*.root").c_str());
+	std::cout << "Loaded " << background->GetEntries() << " entries for background" << std::endl;
 	//TTree* EvTree = new TTree;
 	//EvTree = mergeTrees(1,"/eos/home-r/ratramon/BuToKJpsiTomumu/BuToKJpsiTomumu");
 	BSignalElectronClass evt, bkg_MC;
 	BSignalElectronClass *evt_ptr, *bkg_MCptr;
 	evt_ptr = &evt;
 	bkg_MCptr = &bkg_MC;
+	BNanoClass bkg1;
+	BNanoClass *bkg1_ptr;
 	BGElectronClass bkg;
 	BGElectronClass *bkg_ptr;
+	bkg1_ptr = &bkg1;
 	bkg_ptr = &bkg;
 	evt.Init(EvTree);
 	bkg_MC.Init(BG_MCTree);
-	bkg.Init(BGTree);
+	bkg1.Init(background1);
+	bkg.Init(background);
 	setStyle();
 
 	std::cout << "MC backgound entries " << bkg_MC.fChain->GetEntries() << std::endl;
@@ -65,16 +93,17 @@ int main(int argc, char **argv){
 
 	TH2D* eff_cut =new TH2D("efficiencies","",19,-11,8,19,-11,8);	
 	TH2D* signal_ptId =new TH2D("pt vs mvaId sglMC","",19,-11,8,19,-11,8);	
-	TH2D* signal_ptId =new TH2D("pt vs mvaId backMC","",19,-11,8,,-11,8);	
-	TH2D* signal_ptId =new TH2D("pt vs mvaId back","",19,-11,8,19,-11,8);	
-	TH1D* signalMC_mvaId = new TH1D("signal pfmvaid","signal pfmvaid",38,-11,8);
-	TH1D* bkgMC_mvaId = new TH1D("signal pfmvaid","signal pfmvaid",38,-11,8);
-	TH1D* bkg_mvaId = new TH1D("bkg pfmvaid","bkg pfmvaid",38,-11,8);
+	TH1D* signalMC_mvaId = new TH1D("signal pfmvaid","signal pfmvaid",60,-11,8);
+	TH1D* bkgMC_mvaId = new TH1D("signal pfmvaid","signal pfmvaid",60,-11,8);
+	TH1D* bkg1_mvaId = new TH1D("bkg1 pfmvaid","bkg1 pfmvaid",60,-11,8);
+	TH1D* bkg_mvaId = new TH1D("bkg pfmvaid","bkg pfmvaid",60,-11,8);
 	TH1D* signalMC_pt = new TH1D("signal pt","signal pt",35,0,35);
 	TH1D* bkgMC_pt = new TH1D("signal pt","signal pt",35,0,35);
+	TH1D* bkg1_pt = new TH1D("bkg1 pt","bkg1 pt",35,0,35);
 	TH1D* bkg_pt = new TH1D("bkg pt","bkg pt",35,0,35);
 	TH1D* signalMC_eta = new TH1D("signal eta","signal eta",30,-3,3);
 	TH1D* bkgMC_eta = new TH1D("signal eta","signal eta",30,-3,3);
+	TH1D* bkg1_eta = new TH1D("bkg1 eta","bkg1 eta",30,-3,3);
 	TH1D* bkg_eta = new TH1D("bkg eta","bkg eta",30,-3,3);
 
 	for (int i1=0;i1<n1_bin;i1++){
@@ -110,13 +139,15 @@ int main(int argc, char **argv){
 	
 	Fill_MChistos(evt_ptr,signalMC_mvaId,signalMC_pt,signalMC_eta);
 	Fill_MChistos(bkg_MCptr,bkgMC_mvaId,bkgMC_pt,bkgMC_eta);
-	Fill_DATAhistos(bkg_ptr,bkg_mvaId,bkg_pt,bkg_eta);
+	Fill_DATAhistosNano(bkg1_ptr,bkg1_mvaId,bkg1_pt,bkg1_eta,0);
+	Fill_DATAhistos(bkg_ptr,bkg_mvaId,bkg_pt,bkg_eta,0);
+
 
 	std::cout << "after filling " << bkgMC_pt->GetEntries() << std::endl;	
-	superMC_DATAnorm(signalMC_mvaId,bkgMC_mvaId,bkg_mvaId,0.07,"SglVsBkg_mvaId","PFmvaId",false,false);
-	superMC_DATAnorm(signalMC_pt,bkgMC_pt,bkg_pt,0.6,"SglVsBkg_pt","p_{T}(GeV)",true,true);
-	superMC_DATAnorm(signalMC_eta,bkgMC_eta,bkg_eta,0.07,"SglVsBkg_eta","#eta",false,false);
-	SavePlot2D("pfmvaid cut efficiencies",eff_cut,"PFmvaId_cut_eff",false,false);
+	superMC_DATAnorm(signalMC_mvaId,bkgMC_mvaId,bkg1_mvaId,bkg_mvaId,0.07,"SglVsBkg_mvaId","PFmvaId",false,false);
+	superMC_DATAnorm(signalMC_pt,bkgMC_pt,bkg1_pt,bkg_pt,0.6,"SglVsBkg_pt","p_{T}(GeV)",true,true);
+	superMC_DATAnorm(signalMC_eta,bkgMC_eta,bkg1_eta,bkg_eta,0.07,"SglVsBkg_eta","#eta",false,false);
+	SavePlot2D("pfmvaid cut efficiencies","",eff_cut,"PFmvaId_cut_eff",false,false);
 	
 
 	for (int index=0;index<n_selections;index++){
