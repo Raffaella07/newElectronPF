@@ -1,5 +1,6 @@
 #include "../interface/BParkTools.h"
-ROOT::VecOps::RVec<bool> IsGood(unsigned int nB, 
+#include "../src/BPark_fitUtils.cc"
+/* ROOT::VecOps::RVec<bool> IsGood(unsigned int nB, 
 				float *pT1, float *pT2, float *pTk, 
  				ROOT::VecOps::RVec<unsigned int>& nTrg,float *cos2D, float *vtxP, 
  				float *disp, float *dispU, float *pT,float*eta) { 
@@ -30,7 +31,7 @@ ROOT::VecOps::RVec<int> Rankv2(ROOT::VecOps::RVec<float>& vtxP){
     ++nRank;
   }
   return rank; 
-}
+} */
 
 
 Double_t fline(Double_t *x, Double_t *par)
@@ -62,18 +63,20 @@ void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type){
 }
 double sigma_Bsig(){
 
-	TFile* file_sigMC = TFile::Open("../skimmed_ntuples/skimmedNANO_BPark_mc_sgl_2020Jan2016.root");
-	TTree* Tree = (TTree*)file_sigMC->Get("Tree");
+	TChain * chain = new TChain("Events");
+	chain->Add("/eos/cms/store/group/cmst3/group/bpark/BParkingNANO_2020Jan16/BuToKJpsi_Toee_Mufilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/crab_BuToKJpsi_Toee/200116_215618/0000/BParkNANO_mc_2020Jan16_*.root");
 	TF1* fit = new TF1("gaussfit","gaus",5.2,5.4);
-	TH1D* B_mass = new TH1D("B_mass","B_mass",50,4.5,5.8);
-	BSignalElectronClass evt;
-	evt.Init(Tree);
+	TH1D* B_mass = new TH1D("B_mass","B_mass",92,0,4);
+	BElectronsClassMC evt;
+	evt.Init(chain);
 	int i;
-
+	std::cout << "before for, signal weight" << SignalWeight() << std::endl;
 	for(i=0;i<evt.fChain->GetEntries();i++){
 		evt.fChain->GetEntry(i);
-		B_mass->Fill(evt.B_mass);
-
+		for(int j =0; j<evt.nBToKEE; j++){
+		if (evt.Electron_isPF[evt.BToKEE_l1Idx[j]] && evt.Electron_isPF[evt.BToKEE_l2Idx[j]])B_mass->Fill(evt.BToKEE_mll_llfit[j],SignalWeight());
+		break;
+		}
 	}	
 
 	fit->SetParameter(2,3);
@@ -132,8 +135,8 @@ void SavePlot (std::string titlestring, TH1D * histo, const char * filename, boo
 	histo->GetXaxis()->SetTitle(titlestring.c_str());
 	histo->GetYaxis()->SetTitle("entries");
 	std::cout << "axis title" << titlestring.c_str() << std::endl;
-	histo->Draw(/*"hist"*/);
-	if(fit != NULL) fit->DrawF1(5.0,5.5,"same");
+	histo->Draw("HIST");
+	if(fit != NULL) fit->Draw("same");
 	if(lable)lables1D(canvas,histo);
 	canvas->SaveAs((PDFPATH+std::string(filename)+".pdf").c_str());
 	canvas->SaveAs((PNGPATH+std::string(filename)+".png").c_str());
@@ -179,9 +182,9 @@ void superpos(std::string titlestring,TH1D * h1, TH1D* h2, const char* filename,
 	l.SetTextSize(0.045);
 	l.SetTextAlign(13);
 	l.SetTextColor(kRed-6);
-	l.DrawLatex(h1->GetXaxis()->GetXmin()+0.1*(h1->GetXaxis()->GetXmax()-h1->GetXaxis()->GetXmin()),0.98*h1->GetMaximum(),(std::string("Signal ")+std::to_string((int)h1->GetEntries())).c_str());
+	l.DrawLatex(h1->GetXaxis()->GetXmin()+0.4*(h1->GetXaxis()->GetXmax()-h1->GetXaxis()->GetXmin()),0.98*h1->GetMaximum(),(std::string("Signal ")+std::to_string((int)h1->GetEntries())).c_str());
 	l.SetTextColor(kBlue-3);
-	l.DrawLatex(h1->GetXaxis()->GetXmin()+0.1*(h1->GetXaxis()->GetXmax()-h1->GetXaxis()->GetXmin()),0.80*h1->GetMaximum(),(std::string("Background ")+std::to_string((int)h2->GetEntries())).c_str());
+	l.DrawLatex(h1->GetXaxis()->GetXmin()+0.4*(h1->GetXaxis()->GetXmax()-h1->GetXaxis()->GetXmin()),0.80*h1->GetMaximum(),(std::string("Background ")+std::to_string((int)h2->GetEntries())).c_str());
 	if (lable ) lables1D(canvas,h1);
 	canvas->SaveAs((std::string(filename)+".pdf").c_str());
 	canvas->SaveAs((PNGPATH+std::string(filename)+".png").c_str());
@@ -191,10 +194,11 @@ void superpos(std::string titlestring,TH1D * h1, TH1D* h2, const char* filename,
 	delete canvas;
 }
 
-void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,double x_lable, std::string filename,std::string axis, bool order, bool log){
+void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,TH1D* histo4, double x_lable, std::string filename,std::string axis, bool order, bool log){
 
 	histo1->Scale(histo3->Integral()/histo1->Integral());
 	histo2->Scale(histo3->Integral()/histo2->Integral());
+	histo4->Scale(histo3->Integral()/histo4->Integral());
 	TCanvas* canv = new TCanvas("c1","c1",800,600);
 	TLatex l;
 	std::string PNGPATH = "/eos/home-r/ratramon/www/";
@@ -206,6 +210,9 @@ void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,double x_lable, std
 	histo3->SetLineWidth(4);
 	histo3->SetMarkerStyle(8);
 	histo3->SetMarkerSize(1.5);
+	histo4->SetMarkerStyle(8);
+	histo4->SetMarkerSize(1.5);
+	histo3->SetMarkerColor(8);
 	histo1->SetLineColor(kRed-6);
 	histo2->SetLineColor(kBlue-3);
 	histo1->GetXaxis()->SetTitle(axis.c_str());
@@ -216,21 +223,25 @@ void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,double x_lable, std
 	histo1->Draw("HIST");
 	histo2->Draw("sameHIST");
 	histo3->Draw("samePE1");
+	histo4->Draw("samePE1");
 	}else{
 	histo2->GetXaxis()->SetTitle(axis.c_str());
 	histo2->GetYaxis()->SetTitle("entries(normalized to DATA)");
 	histo2->Draw("HIST");
 	histo1->Draw("sameHIST");
 	histo3->Draw("samePE1");
+	histo4->Draw("samePE1");
 	}
 	l.SetTextSize(0.045);
 	l.SetTextAlign(13);
 	l.SetTextColor(kRed-6);
-	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),1*histo1->GetMaximum(),"Signal(MC) ");
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),1.*histo1->GetMaximum(),"Signal(MC) ");
 	l.SetTextColor(kBlue-3);
-	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.5*histo1->GetMaximum(),"Fakes(MC)");
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.9*histo1->GetMaximum(),"Fakes(MC)");
+	l.SetTextColor(8);
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.8*histo1->GetMaximum(),"Fakes(DATAext)");
 	l.SetTextColor(kBlack);
-	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.25*histo1->GetMaximum(),"Fakes(DATA)");
+	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.7*histo1->GetMaximum(),"Fakes(DATA)");
 	
 	canv->SaveAs((PDFPATH+filename+".pdf").c_str());
 	canv->SaveAs((PNGPATH+filename+".png").c_str());
@@ -244,7 +255,7 @@ void Fill_MChistos(BSignalElectronClass  *tree, TH1D * PFmvaId,TH1D * pt,TH1D * 
 	int i;	
 	for(i=0;i<tree->fChain->GetEntries();i++){
 		tree->fChain->GetEntry(i);
-		if (tree->B_l1_isPF==1){
+		if (tree->B_l1_isPF==1 ){
 			 PFmvaId->Fill(tree->B_l1_mvaId);
 			 pt->Fill(tree->B_l1_pt);
 			 eta->Fill(tree->B_l1_eta);
@@ -259,13 +270,19 @@ void Fill_MChistos(BSignalElectronClass  *tree, TH1D * PFmvaId,TH1D * pt,TH1D * 
 
 }
 
-void Fill_DATAhistos(BGElectronClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta){
+void Fill_DATAhistos(BGElectronClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta, int sel){
 
 	int i;
-	
+	bool selection;
+
 	for(i=0;i<tree->fChain->GetEntries();i++){
 	//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
 		tree->fChain->GetEntry(i);
+	if (sel==0) selection = true;
+	if(sel ==1 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==1)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==1);
+	if(sel ==2 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==0)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==0);
+	if(sel==3)   selection = tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3;
+		if (!selection) continue;
 		for(int j=0; j<tree->nElectrons;j++){
 //	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
 			if(tree->Ele_isPF[j]){
@@ -279,17 +296,43 @@ void Fill_DATAhistos(BGElectronClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta)
 
 
 }
-void SavePlot2D (std::string titlestring, TH2D * histo,const char*  filename, bool log,bool lable){
+void Fill_DATAhistosNano(BNanoClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta, int sel){
 
-	TCanvas* canvas = new TCanvas(titlestring.c_str(),titlestring.c_str(),600,550);
+	int i;
+	bool selection;
+
+	for(i=0;i<tree->fChain->GetEntries();i++){
+	//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
+		tree->fChain->GetEntry(i);
+	if (sel==0) selection = true;
+//	if(sel ==1 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==1)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==1);
+//	if(sel ==2 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==0)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==0);
+//	if(sel==3)   selection = tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3;
+		if (!selection) continue;
+		for(int j=0; j<tree->nElectron;j++){
+//	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
+			if(tree->Electron_isPF[j]){
+		
+			 PFmvaId->Fill(tree->Electron_pfmvaId[j]);
+			 pt->Fill(tree->Electron_pt[j]);
+			 eta->Fill(tree->Electron_eta[j]);
+		}
+		}
+		}
+
+
+}
+void SavePlot2D (std::string Xstring, std::string Ystring,TH2D * histo,const char*  filename, bool log,bool lable){
+
+	TCanvas* canvas = new TCanvas(Xstring.c_str(),Xstring.c_str(),600,550);
 	std::string PNGPATH = "/eos/home-r/ratramon/www/";
-	//TH2D * plotter =new TH2D("-","",20,-20,20,20,0.0,0.4);
+//	TH2D * plotter =new TH2D("-","",20,-2.2,0.2,20,-2.2,0.2);
 	if (log) canvas->SetLogy();
 //	plotter->Draw();
-	histo->Draw("sameCOLZ");
+	histo->Draw("COLZtext");
 	
-	histo->GetXaxis()->SetTitle("Cut_{PFmvaId}^{e-sublead}");
-	histo->GetYaxis()->SetTitle("Cut_{PFmvaID}^{e-lead}");
+	histo->GetXaxis()->SetTitle(Xstring.c_str());
+	histo->GetYaxis()->SetTitle(Ystring.c_str());
 	if (lable)lables(canvas,histo);
 	canvas->SaveAs((std::string(filename)+".pdf").c_str());
 	canvas->SaveAs((PNGPATH+std::string(filename)+".png").c_str());
