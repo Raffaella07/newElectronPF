@@ -25,7 +25,9 @@
 #include "TString.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
+#include "../interface/BCategorizedClass.h"
+#include "../interface/BSixCand.h"
 	
 double SignalWeight();
 
-std::pair<double,double> fit(TH1D* , int , int, bool,double);
+void fit(TH1D* , int , int, bool,double,int, double*);
