@@ -1,5 +1,6 @@
 #include "../interface/BPark_fitUtils.h"
 
+
 double SignalWeight(){
 	double lumi,n_events;
 	lumi = 5.187706291*1e15;
@@ -15,7 +16,7 @@ double SignalWeight(){
 
 
 }
-std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double sig_yeld){
+void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double sig_yeld, int cat,double * resu){
 
 	std::cout << "in fit________________________ " << std::endl;
 	RooWorkspace wspace("w");
@@ -27,23 +28,71 @@ std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double
 	gStyle->SetOptTitle(0);
 	
 	
-//	TFile* file = TFile::Open(mc.c_str());
-//	TTree* tree = (TTree*)file->Get("Tree");
-//	SingleBClass evt;
-//	evt.Init(tree);
+	TFile* file;
+	if (cat ==1 )file  = TFile::Open("MonteC_ip.root");
+	else file = TFile::Open("MonteC_ip1.root");
+	TTree* tree = (TTree*)file->Get("Tree");
+	BCategorizedClass evt;
+	evt.Init(tree);
 
 	double xmin, xmax;
 	xmin = hist->GetXaxis()->GetXmin()/*+2*hist->GetXaxis()->GetBinWidth(1)*/;
 	xmax = hist->GetXaxis()->GetXmax();//-2*hist->GetXaxis()->GetBinWidth(1);
 	std::cout << "bin width " << hist->GetXaxis()->GetBinWidth(1) << std::endl;
-	TH1D* mB = new TH1D("sig_norm","sig_norm",(int)((xmax-xmin)/hist->GetXaxis()->GetBinWidth(1)), xmin, xmax); 
+	TH1D* mB_res = new TH1D("sig_norm","sig_norm",(int)((xmax-xmin)/hist->GetXaxis()->GetBinWidth(1)), xmin, xmax); 
+	TH1D* mB_nores = new TH1D("sig_norm","sig_norm",(int)((xmax-xmin)/hist->GetXaxis()->GetBinWidth(1)), xmin, xmax); 
 
 	std::cout << "limits" << xmin << "   " << xmax << std::endl;
 
 	wspace.factory(("x[5.0,"+std::to_string(xmin)+","+std::to_string(xmax)+"]").c_str());
 
-	wspace.factory("nbkg[1000,0,1000000]");
 
+	wspace.factory("nbkg[1000,0,1000000]");
+	double lumi = 10.31;
+	int c =(int)sig_yeld;
+	std::cout << "_____________________________________________histo index " << c << std::endl;
+
+			for(int i =0;i<evt.fChain->GetEntries();i++){
+				
+				evt.fChain->GetEntry(i);
+				
+				int j =0;		
+				if (c==0){
+				for(int j=0; j< evt.nSaved; j++){
+					
+					if (evt.BToKEE_mll_fullfit[j] >3 &&  evt.BToKEE_mll_fullfit[j]<3.3)mB_res->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+					else if (evt.BToKEE_mll_llfit[j]<2.5) mB_nores->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+				}
+				}
+				else {
+
+				for(int j=0; j< evt.nSaved; j++){
+				if (evt.category ==0 && c ==1 &&  evt.BToKEE_l1_isPF[j]){
+						
+					if (evt.BToKEE_mll_fullfit[j] >3 &&  evt.BToKEE_mll_fullfit[j]<3.3)mB_res->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+					else if (evt.BToKEE_mll_llfit[j]<2.5) mB_nores->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+
+					}else if (evt.category == 0 && c == 2 &&  evt.BToKEE_l1_isLowPt[j]){
+						
+					if (evt.BToKEE_mll_fullfit[j] >3 &&  evt.BToKEE_mll_fullfit[j]<3.3)mB_res->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+					else if (evt.BToKEE_mll_llfit[j]<2.5) mB_nores->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+
+					}else if ( c >2  && evt.category==c-2){
+					if (evt.BToKEE_mll_fullfit[j] >3 &&  evt.BToKEE_mll_fullfit[j]<3.3)mB_res->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+
+					else if (evt.BToKEE_mll_llfit[j]<2.5) mB_nores->Fill(evt.BToKEE_fit_mass[j],lumi/45.17);
+					}
+				}
+				
+				
+			}
+		}
 	/*for (int i=0; i<hist->GetNbinsX();i++){
 
 	  if (hist->GetXaxis()->GetBinLowEdge(i)>4.9 &&  hist->GetXaxis()->GetBinUpEdge(i)<5.5) hist->SetBinContent(i,0);
@@ -94,8 +143,11 @@ std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double
 
 				}
 	}*/
-	sig_yeld= sig_yeld* 5.5*1e-7/0.0000618;
-	if (!res )wspace.factory(("nsig["+std::to_string(sig_yeld)+","+std::to_string(sig_yeld)+","+std::to_string(sig_yeld)+"]").c_str());
+	//sig_yeld= sig_yeld* 5.5*1e-7/0.0000618;
+	sig_yeld = mB_res->Integral();
+	std::cout << "sig yield " << sig_yeld << std::endl;
+	if (((c!=1 ) && res)|| !res )wspace.factory(("nsig["+std::to_string(sig_yeld)+","+std::to_string(sig_yeld)+","+std::to_string(sig_yeld)+"]").c_str());
+	else if ((c==2 ))wspace.factory(("nsig["+std::to_string(sig_yeld)+",0,200000]").c_str());
 	else wspace.factory("nsig[200,0,1000000]");
 	wspace.var("x");
 	wspace.var("mean");
@@ -135,8 +187,8 @@ std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double
 		wspace.factory("c0[1.0, -1.0, 10.0]");
 		wspace.factory("c1[-0.1, -1.0, 10.0]");
 		wspace.factory("c2[-0.1, -10.0, 10.0]");
-		//	wspace.factory("c3[-0.1, -10.0, 10.0]");
-		//	wspace.factory("c4[-0.1, -10.0, 10.0]");
+		//wspace.factory("c3[-0.1, -10.0, 10.0]");
+	//	wspace.factory("c4[-0.1, -10.0, 10.0]");
 		wspace.factory("Chebychev::bkg(x,{c0,c1,c2})");
 	}
 	if (bkgPDF == 1){
@@ -155,10 +207,11 @@ std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double
 		wspace.factory("c2[0, -1.0, 1.0]");
 		wspace.factory("c3[0, -1, 1]");
 		wspace.factory("c4[0, -1, 1]");
-		wspace.factory("Chebychev::bkg(x,{c0,c1,c2,c3})");
+		wspace.factory("Chebychev::bkg(x,{c0,c1,c2,c3,c4})");
 	}
 
-	wspace.factory("SUM::model(nsig*sig,nbkg*bkg)");
+	if (c == 1 || c==2 )wspace.factory("SUM::model(nsig*sig,nbkg*bkg)");
+	else wspace.factory("SUM::model(nbkg*bkg)");
 
 	RooAbsPdf* mod = wspace.pdf("model");
 	RooAbsPdf* bkg = wspace.pdf("bkg");
@@ -219,12 +272,12 @@ std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double
 	xframe->SetStats(0);
 	xframe->SetMinimum(0);
 	xframe->Draw();
-	mB->SetLineColor(kOrange+8);
-	mB->SetLineWidth(3);
-	mB->Draw("samehist");
+	mB_res->SetLineColor(kOrange+8);
+	mB_res->SetLineWidth(3);
+	mB_res->Draw("samehist");
 
 	TLegend* l;
-	if(res) l = new TLegend(0.67,0.55,0.95,0.90);
+	if(c == 1) l = new TLegend(0.67,0.55,0.95,0.90);
 	else  l = new TLegend(0.67,0.15,0.95,0.50);
 	//	l->SetTextFont(72);
 	l->SetTextSize(0.04);
@@ -242,12 +295,17 @@ std::pair<double,double> fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, double
 	l->AddEntry("" ,("S/#sqrt{S+B} = "+std::string(v)).c_str(),"");
 	l->Draw();
 
-	if (res)c2->SaveAs("fit_peak.pdf");
+	if (res)c2->SaveAs(("fit_peak"+std::to_string(c)+"_"+std::to_string(cat)+".pdf").c_str());
 	else c2->SaveAs("fit_nores.pdf");
 	std::cout << " S/sqrt(S+B): " << nSigWindow/sqrt(nSigWindow + nbkgWindow)<< std::endl;
 	std::pair<double,double> pair = std::make_pair(nSigWindow,nbkgWindow);
 	std::cout << " S " << pair.first<< std::endl;
 	std::cout << " S/sqrt(S+B): " << pair.second<< std::endl;
-	return pair;
+	resu[0] = nSigWindow;
+	resu[1] = wspace.var("nsig")->getError() * fracSigRange->getVal();
+	resu[2] = nbkgWindow;
+	resu[3] = wspace.var("nbkg")->getError() * fracBkgRange->getVal();
+	delete mB_res;
+	delete mB_nores;
 
 }
