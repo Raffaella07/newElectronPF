@@ -49,7 +49,7 @@ int main(){
 		infile >> temp1; // read second column number
 		eff_s.push_back(temp1);
 		infile >> temp2; // read third column number
-		eff_b.push_back(temp2);
+		eff_b.push_back(-temp2);
 		//sig.push_back(temp3);
 	//	bkg.push_back(temp4);
 		
@@ -71,7 +71,7 @@ int main(){
 	}
 	
 	TGraph* merit_data = new TGraph(wp.size(),wp.data(),merit.data());
-	TH2D* plotter =new TH2D ("plotter", "plotter",10,-17,12,10,10,15);
+	TH2D* plotter =new TH2D ("plotter", "plotter",10,-17,12,10,10,25);
 	TCanvas * c = new TCanvas("name","name",600,800);
 	merit_data->SetMarkerStyle(8);
 	merit_data->SetMarkerSize(1);
