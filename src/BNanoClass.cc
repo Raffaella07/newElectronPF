@@ -1,6 +1,6 @@
 #include "../interface/BNanoClass.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
+//#include "TMVA/Tools.h"
+//#include "TMVA/Reader.h"
 #include "TVector3.h"
 #include <iostream>
 void BNanoClass::Init(TTree *tree)
@@ -320,10 +320,10 @@ bool BNanoClass::isMcB( int theB ) {
 	if (k_genPartIdx ==-1 || k_genPartIdx>1000) return false; 
 	int k_genMotherIdx    = GenPart_genPartIdxMother[k_genPartIdx];
 	std::cout << "in isMcB start"  <<  ProbeTracks_genPartIdx[k_idx]<<" " << BToKEE_l2Idx[theB]<< " " << BToKEE_kIdx[theB]<< std::endl;
-	//	int k_genGMotherIdx   = GenPart_genPartIdxMother[k_genMotherIdx];
+	int k_genGMotherIdx   = GenPart_genPartIdxMother[k_genMotherIdx];
 	int k_genPdgId        = GenPart_pdgId[k_genPartIdx];
 	int k_genMotherPdgId  = GenPart_pdgId[k_genMotherIdx];
-	//	int k_genGMotherPdgId = GenPart_pdgId[k_genGMotherIdx];
+	int k_genGMotherPdgId = GenPart_pdgId[k_genGMotherIdx];
 
 	int ele1_genPartIdx      = Electron_genPartIdx[ele1_idx];  
 	if (ele1_genPartIdx ==-1 || ele1_genPartIdx>1000) return false; 
@@ -344,21 +344,25 @@ bool BNanoClass::isMcB( int theB ) {
 	// B -> K J/psi(ll) at gen level
 	// 443 = J/Psi; 521 = B+
 	bool okMatch = (ele1_genPartIdx>-0.5 && ele2_genPartIdx>-0.5 && k_genPartIdx>-0.5);
-	bool RK_res1 = abs(ele1_genMotherPdgId)==443 && abs(k_genMotherPdgId)==521;
-	bool RK_res2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genGMotherPdgId) && (k_genMotherPdgId==ele2_genGMotherPdgId);
+	bool RK_res1 = abs(ele1_genMotherPdgId)==521 && abs(k_genMotherPdgId)==521;
+	bool RK_res2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genMotherPdgId) && (k_genMotherPdgId==ele2_genMotherPdgId);
 	bool RK_res = okMatch && RK_res1 && RK_res2;
-
-
+/*K*(j/Psi)LL version of matching
+	bool okMatch = (ele1_genPartIdx>-0.5 && ele2_genPartIdx>-0.5 && k_genPartIdx>-0.5);
+	bool RK_res1 = abs(ele1_genMotherPdgId)==443 && abs(k_genMotherPdgId)==313;
+	bool RK_res2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genGMotherPdgId==ele1_genGMotherPdgId) && (k_genGMotherPdgId==ele2_genGMotherPdgId);
+	bool RK_res = okMatch && RK_res1 && RK_res2;
+*/
 	bool RK_nores1 = abs(ele1_genMotherPdgId)==521 && abs(k_genMotherPdgId)==521;
 	bool RK_nores2 = (ele1_genMotherPdgId==ele2_genMotherPdgId) && (k_genMotherPdgId==ele1_genMotherPdgId) && (k_genMotherPdgId==ele2_genMotherPdgId);
 	bool RK_nores = okMatch && RK_nores1 && RK_nores2;
 
-	std::cout << "in isMcB "  <<std::endl;
-	return (RK_res || RK_nores);
+	std::cout << "in isMcB " << RK_res2 << " " <<  abs(k_genMotherPdgId)<< " " << okMatch <<std::endl;
+	return RK_res;
 }
 
 
-
+/*
 float BNanoClass::BDT_score(int theB){
 
 	int i;
@@ -389,7 +393,7 @@ float BNanoClass::BDT_score(int theB){
 	reader->AddVariable( "BToKEE_maxDR",      &maxDR );
 	reader->AddVariable( "BToKEE_minDR",      &minDR );
 
-	reader->BookMVA("BDT::BDT","../analysis/BDT.weights.xml");
+//	reader->BookMVA("BDT::BDT","../analysis/BDT.weights.xml");
 	std::cout << "mva booked " << std::endl;
 	TVector3 l1_p,l2_p,r,k_p, pair_proj,k_proj;
 
@@ -426,9 +430,9 @@ float BNanoClass::BDT_score(int theB){
 
 	std::cout <<"check" << ptImb << "  " << Vtxprob << "  " << dxy << "  " << k_sig<< "  " << l1_sig << "  " <<l2_sig << "  " << maxDR << "  " <<minDR <<  std::endl;
 
-	float var= (reader->EvaluateMVA("BDT::BDT"));
+i//	float var= (reader->EvaluateMVA("BDT::BDT"));
 	return var; 
-}
+}*/
 
 
  

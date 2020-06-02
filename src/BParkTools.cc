@@ -1,46 +1,45 @@
 #include "../interface/BParkTools.h"
 #include "../src/BPark_fitUtils.cc"
 /* ROOT::VecOps::RVec<bool> IsGood(unsigned int nB, 
-				float *pT1, float *pT2, float *pTk, 
- 				ROOT::VecOps::RVec<unsigned int>& nTrg,float *cos2D, float *vtxP, 
- 				float *disp, float *dispU, float *pT,float*eta) { 
+   float *pT1, float *pT2, float *pTk, 
+   ROOT::VecOps::RVec<unsigned int>& nTrg,float *cos2D, float *vtxP, 
+   float *disp, float *dispU, float *pT,float*eta) { 
 
-  ROOT::VecOps::RVec<bool> goodB(nB, false);
-  for (auto ij=0; ij<nB; ++ij){
-    if (pT1[ij] > 1. && pT2[ij] > 0.5 && pTk[ij] > 0.8 &&
-     	nTrg[ij] > 0 && cos2D[ij] > 0.99 && vtxP[ij] > 0.1 && disp[ij] > 2 && dispU[ij] != 0 && pT[ij] > 3. && std::abs(eta[ij]) < 2.4)
-      goodB[ij]  = true;
-  }
+   ROOT::VecOps::RVec<bool> goodB(nB, false);
+   for (auto ij=0; ij<nB; ++ij){
+   if (pT1[ij] > 1. && pT2[ij] > 0.5 && pTk[ij] > 0.8 &&
+   nTrg[ij] > 0 && cos2D[ij] > 0.99 && vtxP[ij] > 0.1 && disp[ij] > 2 && dispU[ij] != 0 && pT[ij] > 3. && std::abs(eta[ij]) < 2.4)
+   goodB[ij]  = true;
+   }
 
-  return goodB; 
-}
+   return goodB; 
+   }
 
-ROOT::VecOps::RVec<int> Rankv2(ROOT::VecOps::RVec<float>& vtxP){
+   ROOT::VecOps::RVec<int> Rankv2(ROOT::VecOps::RVec<float>& vtxP){
 
-  
-  auto sortIndices = Argsort(vtxP);
-  ROOT::VecOps::RVec<int> rank;
-  auto totN = vtxP.size();
-  rank.resize(totN);
+
+   auto sortIndices = Argsort(vtxP);
+   ROOT::VecOps::RVec<int> rank;
+   auto totN = vtxP.size();
+   rank.resize(totN);
 //  std::cout << "in Ranked v2" << totN << std::endl;
 
-  int nRank = 0;
-  for (auto ij=0; ij<totN; ++ij){
+int nRank = 0;
+for (auto ij=0; ij<totN; ++ij){
 //	std::cout << "in for RankV2 " << nRank << std::endl;
-    rank[sortIndices[ij]] = nRank;
-    ++nRank;
-  }
-  return rank; 
+rank[sortIndices[ij]] = nRank;
+++nRank;
+}
+return rank; 
 } */
-
 
 Double_t fline(Double_t *x, Double_t *par)
 {
-   if (x[0] > 4.5 && x[0] < 6) {
-      TF1::RejectPoint();
-      return 0;
-   }
-   return par[0]+x[0]*par[1]+par[2]*std::pow(x[0],2)+par[3]*std::pow(x[0],3);
+	if (x[0] > 4.5 && x[0] < 6) {
+		TF1::RejectPoint();
+		return 0;
+	}
+	return par[0]+x[0]*par[1]+par[2]*std::pow(x[0],2)+par[3]*std::pow(x[0],3);
 }
 
 void FillKinhistos(TH1D** histo, double pt, double eta, double phi, int type){
@@ -74,15 +73,15 @@ double sigma_Bsig(){
 	for(i=0;i<evt.fChain->GetEntries();i++){
 		evt.fChain->GetEntry(i);
 		for(int j =0; j<evt.nBToKEE; j++){
-		if (evt.Electron_isPF[evt.BToKEE_l1Idx[j]] && evt.Electron_isPF[evt.BToKEE_l2Idx[j]])B_mass->Fill(evt.BToKEE_mll_llfit[j],SignalWeight());
-		break;
+			if (evt.Electron_isPF[evt.BToKEE_l1Idx[j]] && evt.Electron_isPF[evt.BToKEE_l2Idx[j]])B_mass->Fill(evt.BToKEE_mll_llfit[j],SignalWeight());
+			break;
 		}
 	}	
 
 	fit->SetParameter(2,3);
 	fit->SetParameter(0,B_mass->GetMaximum());
 	fit->SetParLimits(0,B_mass->GetMaximum()-B_mass->GetMaximum()*.4,B_mass->GetMaximum()+B_mass->GetMaximum()*.5);
-	
+
 	B_mass->Fit("gaussfit","0R");
 	SavePlot("M_{B}GeV",B_mass,"newElectronPF/fit_mB",false,fit,false);	
 	return fit->GetParameter(2);
@@ -94,15 +93,15 @@ TTree* mergeTrees(int n_files,std::string filename){
 	int i;
 
 	for(i=0;i<n_files;i++){	
-	
-		
-	TFile* file = TFile::Open((filename+"_"+std::to_string(i)+"_NANO.root").c_str());
-	TTree* EvTree =new TTree;
-	EvTree =  (TTree*)file->Get("Events");
-	l->Add(EvTree);
+
+
+		TFile* file = TFile::Open((filename+"_"+std::to_string(i)+"_NANO.root").c_str());
+		TTree* EvTree =new TTree;
+		EvTree =  (TTree*)file->Get("Events");
+		l->Add(EvTree);
 
 	}
-	
+
 	TTree* tree = new TTree();
 	tree->MergeTrees(l);
 	return tree;
@@ -218,19 +217,19 @@ void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,TH1D* histo4, doubl
 	histo1->GetXaxis()->SetTitle(axis.c_str());
 	histo1->GetYaxis()->SetTitle("entries(normalized to DATA)");
 	if(!order){
-	histo1->GetXaxis()->SetTitle(axis.c_str());
-	histo1->GetYaxis()->SetTitle("entries(normalized to DATA)");
-	histo1->Draw("HIST");
-	histo2->Draw("sameHIST");
-	histo3->Draw("samePE1");
-	histo4->Draw("samePE1");
+		histo1->GetXaxis()->SetTitle(axis.c_str());
+		histo1->GetYaxis()->SetTitle("entries(normalized to DATA)");
+		histo1->Draw("HIST");
+		histo2->Draw("sameHIST");
+		histo3->Draw("samePE1");
+		histo4->Draw("samePE1");
 	}else{
-	histo2->GetXaxis()->SetTitle(axis.c_str());
-	histo2->GetYaxis()->SetTitle("entries(normalized to DATA)");
-	histo2->Draw("HIST");
-	histo1->Draw("sameHIST");
-	histo3->Draw("samePE1");
-	histo4->Draw("samePE1");
+		histo2->GetXaxis()->SetTitle(axis.c_str());
+		histo2->GetYaxis()->SetTitle("entries(normalized to DATA)");
+		histo2->Draw("HIST");
+		histo1->Draw("sameHIST");
+		histo3->Draw("samePE1");
+		histo4->Draw("samePE1");
 	}
 	l.SetTextSize(0.045);
 	l.SetTextAlign(13);
@@ -242,10 +241,10 @@ void superMC_DATAnorm(TH1D* histo1,TH1D* histo2,TH1D* histo3,TH1D* histo4, doubl
 	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.8*histo1->GetMaximum(),"Fakes(DATAext)");
 	l.SetTextColor(kBlack);
 	l.DrawLatex(histo1->GetXaxis()->GetXmin()+x_lable*(histo1->GetXaxis()->GetXmax()-histo1->GetXaxis()->GetXmin()),0.7*histo1->GetMaximum(),"Fakes(DATA)");
-	
+
 	canv->SaveAs((PDFPATH+filename+".pdf").c_str());
 	canv->SaveAs((PNGPATH+filename+".png").c_str());
-	
+
 	delete canv;
 
 }
@@ -256,16 +255,16 @@ void Fill_MChistos(BSignalElectronClass  *tree, TH1D * PFmvaId,TH1D * pt,TH1D * 
 	for(i=0;i<tree->fChain->GetEntries();i++){
 		tree->fChain->GetEntry(i);
 		if (tree->B_l1_isPF==1 ){
-			 PFmvaId->Fill(tree->B_l1_mvaId);
-			 pt->Fill(tree->B_l1_pt);
-			 eta->Fill(tree->B_l1_eta);
+			PFmvaId->Fill(tree->B_l1_mvaId);
+			pt->Fill(tree->B_l1_pt);
+			eta->Fill(tree->B_l1_eta);
 		}
 		if (tree->B_l2_isPF){
 			PFmvaId->Fill(tree->B_l2_mvaId);
 			pt->Fill(tree->B_l2_pt);
 			eta->Fill(tree->B_l2_eta);
 		}
-		}
+	}
 
 
 }
@@ -276,23 +275,23 @@ void Fill_DATAhistos(BGElectronClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta,
 	bool selection;
 
 	for(i=0;i<tree->fChain->GetEntries();i++){
-	//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
+		//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
 		tree->fChain->GetEntry(i);
-	if (sel==0) selection = true;
-	if(sel ==1 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==1)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==1);
-	if(sel ==2 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==0)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==0);
-	if(sel==3)   selection = tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3;
+		if (sel==0) selection = true;
+		if(sel ==1 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==1)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==1);
+		if(sel ==2 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==0)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==0);
+		if(sel==3)   selection = tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3;
 		if (!selection) continue;
 		for(int j=0; j<tree->nElectrons;j++){
-//	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
+			//	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
 			if(tree->Ele_isPF[j]){
-		
-			 PFmvaId->Fill(tree->Ele_pfmvaId[j]);
-			 pt->Fill(tree->Ele_pt[j]);
-			 eta->Fill(tree->Ele_eta[j]);
+
+				PFmvaId->Fill(tree->Ele_pfmvaId[j]);
+				pt->Fill(tree->Ele_pt[j]);
+				eta->Fill(tree->Ele_eta[j]);
+			}
 		}
-		}
-		}
+	}
 
 
 }
@@ -302,23 +301,23 @@ void Fill_DATAhistosNano(BNanoClass *tree, TH1D * PFmvaId,TH1D * pt,TH1D * eta, 
 	bool selection;
 
 	for(i=0;i<tree->fChain->GetEntries();i++){
-	//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
+		//std::cout << "In filling " << tree->fChain->GetEntries() << std::endl;	
 		tree->fChain->GetEntry(i);
-	if (sel==0) selection = true;
-//	if(sel ==1 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==1)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==1);
-//	if(sel ==2 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==0)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==0);
-//	if(sel==3)   selection = tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3;
+		if (sel==0) selection = true;
+		//	if(sel ==1 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==1)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==1);
+		//	if(sel ==2 ) selection = (tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_ToP[0]==0)||(tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3 && tree->DiMuon_ToP[1]==0);
+		//	if(sel==3)   selection = tree->DiMuon_mass[0]<3.15 && tree->DiMuon_mass[0]>3 && tree->DiMuon_mass[1]<3.15 && tree->DiMuon_mass[1]>3;
 		if (!selection) continue;
 		for(int j=0; j<tree->nElectron;j++){
-//	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
+			//	if(j%1000==0)std::cout << "histo filling " <<  tree->Ele_isPF[j] << std::endl;	
 			if(tree->Electron_isPF[j]){
-		
-			 PFmvaId->Fill(tree->Electron_pfmvaId[j]);
-			 pt->Fill(tree->Electron_pt[j]);
-			 eta->Fill(tree->Electron_eta[j]);
+
+				PFmvaId->Fill(tree->Electron_pfmvaId[j]);
+				pt->Fill(tree->Electron_pt[j]);
+				eta->Fill(tree->Electron_eta[j]);
+			}
 		}
-		}
-		}
+	}
 
 
 }
@@ -326,11 +325,11 @@ void SavePlot2D (std::string Xstring, std::string Ystring,TH2D * histo,const cha
 
 	TCanvas* canvas = new TCanvas(Xstring.c_str(),Xstring.c_str(),600,550);
 	std::string PNGPATH = "/eos/home-r/ratramon/www/";
-//	TH2D * plotter =new TH2D("-","",20,-2.2,0.2,20,-2.2,0.2);
+	//	TH2D * plotter =new TH2D("-","",20,-2.2,0.2,20,-2.2,0.2);
 	if (log) canvas->SetLogy();
-//	plotter->Draw();
+	//	plotter->Draw();
 	histo->Draw("COLZtext");
-	
+
 	histo->GetXaxis()->SetTitle(Xstring.c_str());
 	histo->GetYaxis()->SetTitle(Ystring.c_str());
 	if (lable)lables(canvas,histo);
@@ -356,35 +355,35 @@ void Slicer(std::string PLOTPATH,int bin,float min, float max,std::string xaxis,
 		mean[i]=proj[i]->GetMean();
 		RMS[i]=proj[i]->GetMeanError();
 
-	
-	SavePlot (xaxis, proj[i],(PLOTPATH+filename+std::string(range)).c_str() ,false);
+
+		SavePlot (xaxis, proj[i],(PLOTPATH+filename+std::string(range)).c_str() ,false);
 
 
 	}
 	/*TGraphErrors* graph = new TGraphErrors(bin,x,mean,v,RMS);
-	TCanvas* canvas = new TCanvas("","",600,550);
-	canvas->Clear();
-	graph->GetXaxis()->SetTitle("pt(Gev/c)");
-	graph->GetYaxis()->SetTitle("mean dr");
-	graph->SetMarkerStyle(8);
-	graph->GetYaxis()->SetRangeUser(0,1);
-	graph->Draw("AP");
-	canvas->SaveAs((PLOTPATH+"/"+filename+".pdf").c_str());
-	delete canvas;
-	delete graph;
-*/	for(i=0;i<bin;i++){
-		delete proj[i];
-	}
+	  TCanvas* canvas = new TCanvas("","",600,550);
+	  canvas->Clear();
+	  graph->GetXaxis()->SetTitle("pt(Gev/c)");
+	  graph->GetYaxis()->SetTitle("mean dr");
+	  graph->SetMarkerStyle(8);
+	  graph->GetYaxis()->SetRangeUser(0,1);
+	  graph->Draw("AP");
+	  canvas->SaveAs((PLOTPATH+"/"+filename+".pdf").c_str());
+	  delete canvas;
+	  delete graph;
+	  */	for(i=0;i<bin;i++){
+		  delete proj[i];
+	  }
 }
 
 void AngularCorrection(struct pos* pos, TVector3* vertex,struct pos ECALpoint){
-	
+
 	TVector3 clus,vert,diff;
 	double radius =400 ;
 	clus.SetPtEtaPhi(radius,ECALpoint.eta,ECALpoint.phi);
 	vert.SetPtEtaPhi(vertex->Perp(),vertex->Eta(),vertex->Phi());
 	diff = clus-vert;
-	
+
 	(*pos).x= ECALpoint.x;
 	(*pos).y= ECALpoint.y;
 	(*pos).z= ECALpoint.z;
@@ -487,4 +486,3 @@ void setStyle() {
 	style->cd();
 
 }
-
