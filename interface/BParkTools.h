@@ -6,6 +6,7 @@
 #include "../interface/BGElectronClass.h"
 #include "../interface/BElectronsClassMC.h"
 #include "../interface/BSignalElectronClass.h"
+#include "../interface/BminiTree.h"
 
 struct pos{
 
@@ -74,3 +75,4 @@ double DeltaR(double phi1, double eta1, double phi2, double eta2);
 
 
 void setStyle();
+
