@@ -227,17 +227,17 @@ double mc_templEff(BminiMCTree* evt, TH1D* hist,TTree* tree, bool res,int set,in
 
 		evt->fChain->GetEntry(i);
 		if (res) mass_sel = evt->ll_mass<3.25 && evt->ll_mass>2.45;
-		else mass_sel = evt->ll_mass<2.45;
+		else mass_sel =  evt->ll_mass>1 && evt->ll_mass<2.45;
 		if (set==0 && evt->cat1 == cat && evt->is_MC &&  mass_sel){
 			if (evt->BDT_1>cut ){
 				n++;
-			std::cout <<"n" << n << std::endl;
+	//		std::cout <<"n" << n << std::endl;
 				mass = evt->B_mass;
 				if (tree !=NULL) tree->Fill();
 				if (hist != NULL )hist ->Fill(evt->B_mass);
 			}
 			n_tot++;
-			std::cout <<"ntot" << n_tot << std::endl;
+	//		std::cout <<"ntot" << n_tot << std::endl;
 
 
 
@@ -254,7 +254,7 @@ double mc_templEff(BminiMCTree* evt, TH1D* hist,TTree* tree, bool res,int set,in
 		}
 	}
 
-	std::cout << n_tot << std::endl;
+//	std::cout << n_tot << std::endl;
 	return (double)n/n_tot;
 
 
@@ -275,10 +275,11 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	gStyle->SetOptTitle(0);
 
 	double eff_ratio[2][3];	
-	eff_ratio[0][0]=179014./445406;
+//	eff_ratio[0][0]=179014./445406;
+	eff_ratio[0][0] = 0.288/0.955*0.064/0.043;
 	eff_ratio[0][1]=282107./694615;
 	eff_ratio[0][2]=107921./238498;
-	eff_ratio[1][0]=204670./507489;
+	eff_ratio[1][0]=0.288/0.955*0.064/0.043; // just to try, change it when performing for real
 	eff_ratio[1][1]=251268./593246;
 	eff_ratio[1][2]=112934./277784;
 
@@ -290,7 +291,7 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	f_res  = TFile::Open("mini_mc_res.root");
 	f_nores = TFile::Open("mini_mc_nores.root");
 	f_misreco = TFile::Open("misreco_mini.root");
-	//f_hist = TFile::Open("/afs/cern.ch/work/r/ratramon/Bparking/CMSSW_10_2_15/src/FitTools/histotree.root");
+		//f_hist = TFile::Open("/afs/cern.ch/work/r/ratramon/Bparking/CMSSW_10_2_15/src/FitTools/histotree.root");
 	 
 	TTree histotree("hist","misreconstructed events distribution from K*");
 	TTree* tree_res = (TTree*)f_res->Get("Mini");
@@ -303,10 +304,11 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	evt_res.Init(tree_res);
 	evt_nores.Init(tree_nores);
 	evt_misreco.Init(tree_misreco);
-
-	TH1D* templ = new TH1D("templ","templ",50,4.7,5.7);
-	TH1D* templ_misreco = new TH1D("templ_misreco","templ_misreco",50,4.5,6);
-	TH1D* templ_nores = new TH1D("templ_misreco","templ_misreco",50,4.5,6);
+	//if (!res) hist->Rebin(2);
+	TH1D* templ = new TH1D("templ","templ",43,4.71,6);
+	TH1D* hist_blind = new TH1D("hist_blind","Hist_blind",43,4.71,6);
+	TH1D* templ_misreco = new TH1D("templ_misreco","templ_misreco",43,4.71,6);
+	TH1D* templ_nores = new TH1D("templ_misreco","templ_misreco",43,4.71,6);
 
 	std::cout << "in fit________3_______________ " << std::endl;
 	int n_res, n_nores, n_totR, n_totNR;
@@ -314,6 +316,7 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	n_nores =0;
 	n_totR=0;
 	n_totNR=0;
+	bool blind=false ;
 	double eff_res, eff_nores,eff_misreco;
 	double xmin, xmax;
 	xmin = hist->GetXaxis()->GetXmin()/*+2*hist->GetXaxis()->GetBinWidth(1)*/;
@@ -327,7 +330,7 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	wspace.factory(("x[5.0,"+std::to_string(xmin)+","+std::to_string(xmax)+"]").c_str());
 
 
-	wspace.factory("nbkg[1000,0,1000000]");
+	wspace.factory("nbkg[100000,0,1000000]");
 	double lumi = 10.31;
 	int c =set;
 	std::cout << "_____________________________________________histo index " << c << std::endl;
@@ -376,8 +379,8 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	}
 	std::cout << "eff_nores" << (double)n_nores/n_totNR << std::endl;*/
 
-	//eff_res = mc_templEff(&evt_res, templ,NULL,1,set,cat,cut);
-	//eff_misreco = mc_templEff(&evt_misreco,NULL,&histotree,1,set,cat,cut);
+	eff_res = mc_templEff(&evt_res, templ,NULL,1,set,cat,cut);
+	eff_misreco = mc_templEff(&evt_misreco,NULL,&histotree,1,set,cat,cut);
 	eff_nores = mc_templEff(&evt_nores, templ_nores,NULL,0,set,cat,cut);
 
 	std::cout << eff_res << " " << eff_nores << " " << eff_misreco << std::endl;	
@@ -405,25 +408,25 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	//	wspace.import(DoubleCB);		
 	//wspace.var("npred");
 
-	//wspace.var("x")->setRange("low",xmin,4.9);
-	//wspace.var("x")->setRange("high",5.5,xmax);
+	wspace.var("x")->setRange("low",xmin,5.16);
+	wspace.var("x")->setRange("high",5.42,xmax);
 
 	std::cout << "histo stdev" << templ->GetStdDev() << std::endl; 
 	if (sigPDF == 0){
 		// Voigtian
 		wspace.factory("width[1.000e-02, 1.000e-04, 1.000e-01]");
 		//wspace.factory("mean[3.0969+00, 3.06e+00, 3.10e+00]");
-	//	wspace.factory("mean[5.279e+00, 5.26e+00, 5.29e+00]");
+		//wspace.factory("mean[5.279e+00, 5.26e+00, 5.30e+00]");
 			wspace.factory(("mean["+std::to_string(templ->GetXaxis()->GetBinCenter(templ->GetMaximumBin()))+","+std::to_string(templ->GetXaxis()->GetBinCenter(templ->GetMaximumBin())-3*templ->GetStdDev())+", "+std::to_string(templ->GetXaxis()->GetBinCenter(templ->GetMaximumBin())+3*templ->GetStdDev())+"]").c_str());
-		wspace.factory(("sigma["+std::to_string(0.1*templ->GetStdDev())+", 1.e-3, 7.e-2]").c_str());
+		wspace.factory("sigma[4.477e-2, 2.e-3, 7.e-2]");
 		wspace.factory("Voigtian::Voigt(x,mean,width,sigma)");
 	}
 	if (sigPDF == 1){
 		// Gaussian
 		wspace.factory("mean[5.2418e+00, 5.20e+00, 5.35e+00]");
 		//	wspace.factory("mean[3.0969+00, 3.06e+00, 3.10e+00]");
-		wspace.factory("sigma[7.477e-02, 7.477e-02, 7.477e-02]");
-		//	wspace.factory("Gaussian::sig(x,mean,sigma)");
+		wspace.factory("sigma[3.477e-02, 1.477e-02, 7.477e-02]");
+			wspace.factory("Gaussian::sig(x,mean,sigma)");
 	}
 	if (sigPDF == 0){
 		// Crystal-ball
@@ -473,20 +476,24 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	RooArgList list = RooArgList(*wspace.set("obs"));
 
 	RooDataSet d("d","d",&histotree,*wspace.set("obs"),"","");
-	RooKeysPdf misreco2("misr","misr", *wspace.var("x"),d,RooKeysPdf::MirrorBoth,1);
+	RooKeysPdf misreco2("misr","misr", *wspace.var("x"),d,RooKeysPdf::MirrorBoth,1.5);
 	wspace.import(misreco2);
 
-	if (res)
-	{
+/*	if (res)
+	{*/
 		wspace.factory("SUM::sig(pippo*CB1,mario*CB2)");
 		wspace.factory("SUM::model(nsig*sig,nbkg*bkg, nmisreco*misr)");
 		wspace.factory("SUM::signal(nsig*sig)");
-	}
+/*	}
 	else{ 
-		wspace.factory("SUM::sig(pippo*CB1,mario*CB2)");
-		wspace.factory("SUM::model(nbkg*bkg, nmisreco*misr)");
-		wspace.factory("SUM::signal(nsig*sig)");
-	}
+		//wspace.factory("SUM::sig(pippo*CB1,mario*CB2)");
+//		wspace.factory("mean[5.279, 5.20e+00, 5.35e+00]");
+//		wspace.factory("sigma[7.477e-02, 7.477e-02, 7.477e-02]");
+		wspace.factory("Gaussian::signal(x,mean,sigma)");
+		//wspace.factory("SUM::model(nbkg*bkg, nmisreco*misr)");
+		wspace.factory("SUM::model(nsig*signal,nbkg*bkg, nmisreco*misr)");
+		//wspace.factory("SUM::signal(nsig*sig)");
+	}*/
 	RooAbsPdf* signal= wspace.pdf("signal");
 	RooAbsPdf* mod = wspace.pdf("model");
 	RooAbsPdf* bkg = wspace.pdf("bkg");
@@ -494,13 +501,13 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	//bkg = wspace.pdf("bkg");
 	std::cout << "sigma " << wspace.var("sigma")->getVal() << std::endl;
 
-	RooKeysPdf misreco1("mis","mis", *wspace.var("x"),d,RooKeysPdf::MirrorBoth,1.5);
+	//RooKeysPdf misreco1("mis","mis", *wspace.var("x"),d,RooKeysPdf::MirrorBoth,1.5);
 	//	RooKeysPdf misreco2("misNo","misNo", *wspace.var("x1"),d,RooKeysPdf::NoMirror);
 	TCanvas* c3 =new TCanvas("template misreco", "template misreco", 800, 600);
 	RooPlot* misframe = wspace.var("x")->frame();
 	RooBinning b(50,4.5,6);
 	d.plotOn(misframe,RooFit::Binning(b));
-	misreco1.plotOn(misframe);
+	misreco2.plotOn(misframe);
 	//    	misreco2.plotOn(misframe, RooFit::LineStyle(kDashed), RooFit::LineColor(kRed));
 	misframe->Draw();
 	c3->SaveAs((PNGPATH+"fit_misrecoMC"+std::to_string((int)set)+"_"+std::to_string(cat)+"_"+std::to_string(cut)+".png").c_str());
@@ -511,22 +518,23 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	TCanvas* c1 =new TCanvas("MC_Fit", "fit", 800, 600);
 	RooPlot* xmcframe = wspace.var("x")->frame();
 	mc_template.plotOn(xmcframe, RooFit::Name("template fit"));
-	if(res){	wspace.var("n2")->setConstant(kTRUE);
+	wspace.var("n2")->setConstant(kTRUE);
 		wspace.var("pippo")->setConstant(kTRUE);
 		wspace.var("mario")->setConstant(kTRUE);
 		wspace.var("alpha1")->setConstant(kTRUE);
 		wspace.var("alpha2")->setConstant(kTRUE);
 		wspace.var("mean")->setConstant(kTRUE);
 		wspace.var("n1")->setConstant(kTRUE);
-	}
-	wspace.var("sigma")->setConstant(kTRUE);
-	wspace.var("mean")->setConstant(kTRUE);
-	//	wspace.var("n2")->setConstant(kTRUE);
+		wspace.var("sigma")->setConstant(kTRUE);
+	
+		wspace.var("n2")->setConstant(kTRUE);
 
 	sig->plotOn(xmcframe,RooFit::Name("sig"),RooFit::Normalization(wspace.var("nsig")->getVal(),RooAbsReal::NumEvent),RooFit::LineColor(2),RooFit::MoveToBack()); // this will show fit overlay on canvas
 	xmcframe->Draw();
-	c1->SaveAs((PNGPATH+"fit_MC"+std::to_string((int)set)+"_"+std::to_string(cat)+"_"+std::to_string(cut)+".png").c_str());
-
+        if(res)	c1->SaveAs((PNGPATH+"fit_MC"+std::to_string((int)set)+"_"+std::to_string(cat)+"_"+std::to_string(cut)+"_res.png").c_str());
+        else	c1->SaveAs((PNGPATH+"fit_MC"+std::to_string((int)set)+"_"+std::to_string(cat)+"_"+std::to_string(cut)+"_nores.png").c_str());
+	
+	//	wspace.var("mean")->setConstant(kTRUE);
 	double nores;
 	if (!res){
 
@@ -548,17 +556,35 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	//RooAddPdf mod("model", "s+b",RooArgList(*wspace.obj("model")));
 	if (!res){
 		wspace.var("nsig")->setVal(nores);
-		wspace.var("nsig")->setConstant(kTRUE);
+//		wspace.var("alpha1")->setVal(10);
+//		wspace.var("alpha2")->setVal(10);
+//		wspace.var("alpha1")->setConstant(kTRUE);
+//		wspace.var("alpha2")->setConstant(kTRUE);
 	}
-	RooFitResult* result = mod->fitTo(data,RooFit::Save(),RooFit::Extended(kTRUE) /*,RooFit::Range("low","high")*/);
+	RooFitResult* result = mod->fitTo(data,RooFit::Save(),RooFit::Extended(kTRUE)/* ,RooFit::Range("low","high")*/);
+	if (wspace.var("nmisreco")->getError()>wspace.var("nmisreco")->getVal()){
+	wspace.var("nmisreco")->setVal(0);
+	wspace.var("nmisreco")->setConstant(kTRUE);
+	
+	result = mod->fitTo(data,RooFit::Save(),RooFit::Extended(kTRUE)/* ,RooFit::Range("low","high")*/);
+
+	}
 	//result->NormalizedErrors();
+	result->Print(); 
+	if(wspace.var("nsig")->getError()>0.8*wspace.var("nsig")->getVal()){
+
+	std::cout << "_______________________________________________________Signal yield error too large, repeating fit with new paramaters" << std::endl; 
+	result = mod->fitTo(data,RooFit::Save(),RooFit::Extended(kTRUE)/* ,RooFit::Range("low","high")*/);
+	}
 	result->Print(); 
 	std::cout << "sigma " << wspace.var("sigma")->getVal() << std::endl;
 	wspace.var("x")->setRange("window",wspace.var("mean")->getVal()-3*wspace.var("sigma")->getVal(),wspace.var("mean")->getVal()+3*wspace.var("sigma")->getVal());
 	RooAbsReal* fracBkgRange = bkg->createIntegral(*wspace.set("obs"),*wspace.set("obs"),"window") ;
 	RooAbsReal* fracMisRange = misreco2.createIntegral(*wspace.set("obs"),*wspace.set("obs"),"window") ;
 	std::cout << "____________________________________________________________________________________________________debug"  << fracBkgRange<< std::endl;
-	RooAbsReal* fracSigRange = sig->createIntegral(*wspace.set("obs"),*wspace.set("obs"),"window") ;
+	RooAbsReal* fracSigRange;
+	if(res) fracSigRange = sig->createIntegral(*wspace.set("obs"),*wspace.set("obs"),"window") ;
+	else  fracSigRange = signal->createIntegral(*wspace.set("obs"),*wspace.set("obs"),"window") ;
 	std::cout << "____________________________________________________________________________________________________debug" << fracSigRange << std::endl;
 	double  nbkgWindow = wspace.var("nbkg")->getVal() * fracBkgRange->getVal()+wspace.var("nmisreco")->getVal() * fracMisRange->getVal();
 	double  nSigWindow = wspace.var("nsig")->getVal() * fracSigRange->getVal();
@@ -571,21 +597,33 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	gPad->SetRightMargin(0.05);
 	RooPlot* xframe = wspace.var("x")->frame();
 	gStyle->SetPalette(kPastel);
-	if (!res){
-		for (int i =0; i<hist->GetXaxis()->GetNbins(); i++){	
-			if (hist->GetXaxis()->GetBinLowEdge(i) >5.16 && hist->GetXaxis()->GetBinUpEdge(i) < 5.42 ){
-				hist->SetBinContent(i, 0);
-				hist->SetBinError(i, 0);
-			}
+	hist_blind = hist;
 
+	if (blind ){
+		for (int i =0; i<hist_blind->GetXaxis()->GetNbins(); i++){	
+				
+			if (hist_blind->GetXaxis()->GetBinLowEdge(i) >5.16 && hist_blind->GetXaxis()->GetBinUpEdge(i) < 5.42 ){
+				hist_blind->SetBinContent(i, 0.);
+				hist_blind->SetBinError(i, 0.);
+				}
+/*			}else{
+				hist_blind->SetBinContent(i, hist->GetBinContent(i));
+				hist_blind->SetBinError(i, hist->GetBinError(i));
+				}*/
+
+
+			std::cout << "bin content  " << hist_blind->GetBinContent(i)<< std::endl;
 		}
-
-		RooDataHist data_blind = RooDataHist("data_blind","data_blind",list,hist);
+		}
+		RooDataHist data_blind = RooDataHist("data_blind","data_blind",list,hist_blind); // this will show fit overlay on canvas
+	if (!res){
 		data_blind.plotOn(xframe, RooFit::Name("data_blind"));
-		mod->plotOn(xframe,RooFit::Name("combinatorial"),RooFit::Components("bkg"),RooFit::Normalization(wspace.var("nbkg")->getVal(),RooAbsReal::NumEvent),RooFit::DrawOption("FL"),RooFit::LineStyle(kDashed),RooFit::LineColor(kAzure+7));
-		mod->plotOn(xframe,RooFit::Name("misreco"),RooFit::Components("misr"),RooFit::Normalization(wspace.var("nmisreco")->getVal(),RooAbsReal::NumEvent),RooFit::DrawOption("FL"),RooFit::AddTo("combinatorial",1,1),RooFit::LineStyle(kDashed),RooFit::LineColor(kOrange-3),RooFit::FillColor(kOrange-3),RooFit::FillStyle(3001));
-		mod->plotOn(xframe,RooFit::Name("comb"),RooFit::Components("bkg"),RooFit::Normalization(wspace.var("nbkg")->getVal(),RooAbsReal::NumEvent),RooFit::DrawOption("FL"),RooFit::LineStyle(kDashed),RooFit::LineColor(kAzure+7),RooFit::FillColor(kAzure-3),RooFit::FillStyle(3001));
-		signal->plotOn(xframe,RooFit::Name("Sig"),RooFit::Normalization(nores,RooAbsReal::NumEvent),RooFit::DrawOption("FL"),RooFit::FillColor(kRed-3),RooFit::FillStyle(3004),RooFit::LineStyle(6),RooFit::LineColor(kRed-3)) ;
+		mod->plotOn(xframe,RooFit::Name("combinatorial"),RooFit::Components("bkg")/*,RooFit::Normalization(wspace.var("nbkg")->getVal(),RooAbsReal::NumEvent)*/,RooFit::DrawOption("L"),RooFit::LineStyle(kDashed),RooFit::LineColor(kAzure+7));
+		mod->plotOn(xframe,RooFit::Name("misreco"),RooFit::Components("misr")/*,RooFit::Normalization(wspace.var("nbkg")->getVal()+wspace.var("nmisreco")->getVal(),RooAbsReal::NumEvent)*/,RooFit::DrawOption("FL"),RooFit::AddTo("combinatorial",1,1),RooFit::LineStyle(kDashed),RooFit::LineColor(kOrange-3),RooFit::FillColor(kOrange-3),RooFit::FillStyle(3001));
+		mod->plotOn(xframe,RooFit::Name("comb"),RooFit::Components("bkg")/*,RooFit::Normalization(wspace.var("nbkg")->getVal(),RooAbsReal::NumEvent)*/,RooFit::DrawOption("FL")/*,RooFit::Range(xmin,xmax)*/,RooFit::LineStyle(kDashed),RooFit::LineColor(kAzure+7),RooFit::FillColor(kAzure-3),RooFit::FillStyle(3001));
+//		mod->plotOn(xframe,RooFit::Name("comb"),RooFit::Components("bkg")/*,RooFit::Normalization(wspace.var("nbkg")->getVal(),RooAbsReal::NumEvent)*/,RooFit::Range(5.40,xmax),RooFit::DrawOption("FL"),RooFit::LineStyle(kDashed),RooFit::LineColor(kAzure+7),RooFit::FillColor(kAzure-3),RooFit::FillStyle(3001));
+		mod->plotOn(xframe,RooFit::Name("Sig"),RooFit::Components("signal"),RooFit::Normalization(nores,RooAbsReal::NumEvent),RooFit::DrawOption("FL"),RooFit::FillColor(kRed-3),RooFit::FillStyle(3004),RooFit::LineStyle(6),RooFit::LineColor(kRed-3)) ;
+		mod->plotOn(xframe,RooFit::Name("model"),RooFit::LineColor(2),RooFit::Normalization(wspace.var("nbkg")->getVal()+wspace.var("nmisreco")->getVal(),RooAbsReal::NumEvent)); // this will show fit overlay on canvas
 	}else{
 
 		data.plotOn(xframe, RooFit::Name("data"));
@@ -627,13 +665,14 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	//else  l = new TLegend(0.67,0.15,0.95,0.50);
 	//	l->SetTextFont(72);
 	l->SetTextSize(0.03);
-	l->AddEntry(xframe->findObject("data"),"Data","lpe");
+	if(res)	l->AddEntry(xframe->findObject("data"),"Data","lpe");
+	else	l->AddEntry(xframe->findObject("data_blind"),"Data","lpe");
 	l->AddEntry(xframe->findObject("comb"),"Combinatorial bkg","l");
 	l->AddEntry(xframe->findObject("misreco"),"Misreco bkg ","l");
 	l->AddEntry(xframe->findObject("Sig"),"Signal","l");
 
 	char v1[10],v2[10],v3[10];
-	sprintf(v1,"%.2f",nSigWindow);
+	sprintf(v1,"%.2f",wspace.var("nsig")->getVal());
 	sprintf(v2,"%.2f", nbkgWindow);
 	sprintf(v3,"%.2f", nores);
 	if (res) l->AddEntry("" ,("S = "+std::string(v1)).c_str(),"");
@@ -649,7 +688,7 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	if(res)sprintf(v,"%.2f",nSigWindow/sqrt(nSigWindow + nbkgWindow));
 	l->AddEntry("" ,("S/#sqrt{S+B} = "+std::string(v)).c_str(),"");
 	l->Draw();
-	CMS_lumi(c2,5,0,10);
+	CMS_lumi(c2,5,0,37);
 	if (res)c2->SaveAs((PNGPATH+"fit_peak"+std::to_string((int)set)+"_"+std::to_string(cat)+"_"+std::to_string(cut)+".png").c_str());
 	else c2->SaveAs((PNGPATH+"fit_nores"+std::to_string((int)set)+"_"+std::to_string(cat)+"_"+std::to_string(cut)+".png").c_str());
 	std::cout << " S/sqrt(S+B): " << nSigWindow/sqrt(nSigWindow + nbkgWindow)<< std::endl;
@@ -658,8 +697,8 @@ void fit(TH1D* hist,int  sigPDF,int bkgPDF, bool res, int set, int cat, double c
 	std::cout << " S/sqrt(S+B): " << pair.second<< std::endl;
 	resu[4] = nores;
 	resu[5] = resu[1]*BR_NORES/BR_RES*eff_ratio[set][cat]*eff_nores/eff_res ;
-	resu[0] = nSigWindow;
-	resu[1] = wspace.var("nsig")->getError() * fracSigRange->getVal();
+	resu[0] = wspace.var("nsig")->getVal();
+	resu[1] = wspace.var("nsig")->getError() ;
 	resu[2] = nbkgWindow;
 	resu[3] = wspace.var("nbkg")->getError() * fracBkgRange->getVal();
 	delete mB_res;
